@@ -1,0 +1,47 @@
+{
+  "name": "jwbae-plugins",
+  "owner": {
+    "name": "jwbae",
+    "email": "hohre12@gmail.com"
+  },
+  "metadata": {
+    "description": "AI agent quality and development tools for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "immunity",
+      "source": {
+        "source": "github",
+        "repo": "hohre12/immunity"
+      },
+      "description": "The immune system for AI-generated code. Adversarial review, self-verifying contracts, change impact tracking, production readiness analysis.",
+      "version": "0.1.0",
+      "author": {
+        "name": "jwbae"
+      },
+      "homepage": "https://github.com/hohre12/immunity",
+      "repository": "https://github.com/hohre12/immunity",
+      "license": "MIT",
+      "keywords": ["code-quality", "code-review", "agent-memory", "verification"],
+      "category": "code-quality"
+    },
+    {
+      "name": "agent-harmony",
+      "source": {
+        "source": "github",
+        "repo": "hohre12/agent-harmony"
+      },
+      "description": "One prompt to production. Multi-pass quality assurance for autonomous AI development.",
+      "version": "4.0.0",
+      "author": {
+        "name": "jwbae"
+      },
+      "homepage": "https://github.com/hohre12/agent-harmony",
+      "repository": "https://github.com/hohre12/agent-harmony",
+      "license": "MIT",
+      "keywords": ["autonomous-development", "quality-assurance", "multi-pass"],
+      "category": "development"
+    }
+  ]
+}
