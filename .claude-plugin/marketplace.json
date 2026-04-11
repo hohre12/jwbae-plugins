@@ -42,6 +42,23 @@
       "license": "MIT",
       "keywords": ["autonomous-development", "quality-assurance", "multi-pass"],
       "category": "development"
+    },
+    {
+      "name": "feed",
+      "source": {
+        "source": "github",
+        "repo": "hohre12/feed"
+      },
+      "description": "SNS content generator & publisher. Interview-driven workflow that creates platform-optimized posts for Threads, X, Reddit, and Dev.to.",
+      "version": "0.1.0",
+      "author": {
+        "name": "jwbae"
+      },
+      "homepage": "https://github.com/hohre12/feed",
+      "repository": "https://github.com/hohre12/feed",
+      "license": "MIT",
+      "keywords": ["sns", "social-media", "content", "publishing"],
+      "category": "content"
     }
   ]
 }
