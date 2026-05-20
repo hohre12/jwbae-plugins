@@ -12,8 +12,9 @@ cmux), distinct from harness-pipeline tools. It also scaffolds the standard `.cl
 layout so nothing gets forgotten, briefs you on assigned Redmine issues, and works over
 Remote Control.
 
-> **Status: in development (v0.1.0, skeleton).** See [`DESIGN.md`](./DESIGN.md) for the
-> full frozen design and the build plan.
+> **Status: v0.1.0 (v1 complete; pending interactive E2E).** See [`DESIGN.md`](./DESIGN.md)
+> for the full frozen design, and [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) for the
+> interactive test plan.
 
 ## Why
 
@@ -43,6 +44,35 @@ claude plugin validate                     # run before publishing
 /plugin marketplace add hohre12/jwbae-plugins
 /plugin install agent-orchestra@jwbae-plugins
 ```
+
+## Daily use
+
+Prerequisites: the [cmux](https://cmux.com) app, and Claude Code with Agent Teams. Add this
+alias to your shell (`cmux claude-teams` launches Claude with teams + cmux panes and forwards
+flags — see [`docs/cmux-setup.md`](./docs/cmux-setup.md)):
+
+```sh
+alias cgo="cmux claude-teams --dangerously-skip-permissions"
+```
+
+Then:
+
+```sh
+cmux
+cd ~/your-project
+cgo
+/agent-orchestra:init                 # once per project (re-runnable)
+# relaunch so the teams env applies, then:
+/agent-orchestra:run <your request>   # watch workers + reviewer + critic in panes
+/agent-orchestra:briefing             # (optional) start from assigned Redmine issues
+```
+
+## Docs
+
+- [`DESIGN.md`](./DESIGN.md) — full design, decisions, enforcement layer
+- [`docs/cmux-setup.md`](./docs/cmux-setup.md) — cmux launcher, alias, verification
+- [`docs/v2-seams.md`](./docs/v2-seams.md) — heterogeneous critic + server-diagnosis seams
+- [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) — interactive test plan
 
 ## License
 

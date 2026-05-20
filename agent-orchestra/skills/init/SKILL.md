@@ -18,7 +18,7 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 - Manifests: !`ls package.json pyproject.toml requirements.txt go.mod Cargo.toml pom.xml build.gradle composer.json Gemfile 2>/dev/null || echo none`
 - Git: !`git rev-parse --is-inside-work-tree 2>/dev/null && git log --oneline -3 2>/dev/null || echo "NO GIT"`
 - Tests/CI: !`{ ls -d tests test spec .github/workflows 2>/dev/null; } | head; find . -maxdepth 3 \( -name '*test*' -o -name '*spec*' \) 2>/dev/null | head -5`
-- Docs: !`ls README* docs 2>/dev/null | head; ls docs/*.md 2>/dev/null | head`
+- Docs: !`{ find . -maxdepth 1 -iname 'readme*' 2>/dev/null; find docs -maxdepth 1 -name '*.md' 2>/dev/null; } | head -10 || true`
 - Existing Claude config: !`{ test -f CLAUDE.md && echo "CLAUDE.md present"; ls -R .claude 2>/dev/null; } || echo "none"`
 - Argument (idea, if empty repo): $ARGUMENTS
 
