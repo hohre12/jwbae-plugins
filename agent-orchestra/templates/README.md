@@ -27,3 +27,16 @@ must not be auto-loaded as live agents.
 | `{{RULES_PATHS}}` | Which `.claude/rules/*.md` apply to this role |
 
 See `DESIGN.md` §2.2, §2.3, §2.7.
+
+## `mcp.json.tmpl` — MCP servers
+
+`init` fills the Redmine/Supabase entries from the user's setup. Redmine MCP servers vary:
+
+- **stdio server**: fill `{{REDMINE_MCP_COMMAND}}` / `{{REDMINE_MCP_ARGS}}` (e.g. `"uvx"` /
+  `["some-redmine-mcp"]`) and keep `env` for `REDMINE_URL` + `${REDMINE_API_KEY}`.
+- **http server** (e.g. PyPI `redmine-mcp-server` on `:8000`): replace the entry with
+  `{ "type": "http", "url": "http://127.0.0.1:8000/mcp" }` instead of command/args.
+
+Secrets stay as `${ENV_VAR}` references (e.g. `${REDMINE_API_KEY}`, `${SUPABASE_ACCESS_TOKEN}`) —
+never inline. The `/agent-orchestra:briefing` skill is written tool-agnostically, so it adapts
+to whichever Redmine MCP tool names the chosen server exposes.
