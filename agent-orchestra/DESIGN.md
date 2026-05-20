@@ -100,27 +100,33 @@ orchestra의 차별점이다. (필요 시 immunity 스킬을 도구로 호출해
 
 설치 스코프는 `user`(전역, `~/.claude/settings.json`, 기본값)로 설치 → 모든 프로젝트에서 사용.
 
+monorepo `hohre12/jwbae-plugins` 안의 `agent-orchestra/` 디렉토리(§2.5).
+
 ```
-orchestra/                          # 개인 git 레포 = 마켓플레이스
+agent-orchestra/                    # jwbae-plugins 안의 플러그인 디렉토리
 ├── .claude-plugin/
-│   ├── plugin.json                 # 매니페스트 (§2.4)
-│   └── marketplace.json            # 마켓플레이스 등록 (§2.5)
-├── skills/
-│   ├── orchestrate/SKILL.md        # /orchestrate         ← 오케스트레이터 두뇌
-│   ├── orchestrate-init/SKILL.md   # /orchestrate init    ← triage + 스캐폴딩
-│   └── briefing/SKILL.md           # /orchestrate briefing ← Redmine 브리핑
-├── agents/                         # 베이스 정의 (원형)
-│   ├── reviewer.md                 #   memory: project
-│   ├── critic.md                   #   memory: project
-│   └── archetypes/                 #   워커 원형 (§2.3)
-│       ├── backend.md   ├── frontend.md  ├── test.md
-│       ├── explorer.md  ├── architect.md └── devops.md
+│   └── plugin.json                 # 매니페스트 (§2.4)  ← .claude-plugin엔 이것만
+├── skills/                         # 네임스페이스: /agent-orchestra:<name>
+│   ├── init/SKILL.md               # /agent-orchestra:init     ← triage + 스캐폴딩
+│   ├── run/SKILL.md                # /agent-orchestra:run      ← 오케스트레이터 두뇌
+│   └── briefing/SKILL.md           # /agent-orchestra:briefing ← Redmine 브리핑
+├── agents/                         # 자동 발견되는 실제 플러그인 에이전트
+│   ├── reviewer.md                 #   memory: project (color: blue)
+│   └── critic.md                   #   memory: project (color: red)
 ├── hooks/
 │   └── hooks.json                  # 리뷰 게이트·팀 강제 등 결정성 레이어
 ├── scripts/                        # 훅이 호출하는 스크립트 (${CLAUDE_PLUGIN_ROOT}/scripts/...)
-└── templates/                      # init이 레포에 찍어내는 골격
-    ├── CLAUDE.md.tmpl  ├── rules/*.tmpl  └── mcp.json.tmpl
+├── templates/                      # 비자동발견 보조. init이 ${CLAUDE_PLUGIN_ROOT}/templates/로 읽음
+│   ├── CLAUDE.md.tmpl  rules/*.tmpl  mcp.json.tmpl
+│   └── archetypes/                 #   워커 원형 (§2.3) — 템플릿이라 agents/ 아닌 여기 둠
+│       ├── backend.md  frontend.md  test.md
+│       └── explorer.md  architect.md  devops.md
+└── .mcp.json                       # 루트 (자동 발견)
 ```
+
+> ⚠️ 워커 archetype은 `{{placeholder}}`가 든 *템플릿*이다. `agents/`에 두면 런타임에 깨진
+> 에이전트로 로드되므로 자동 발견되지 않는 `templates/archetypes/`에 둔다. `init`이 프로젝트
+> 값으로 채워 그 프로젝트의 `.claude/agents/`에 *실제* 워커로 인스턴스화한다.
 
 ### 2.2 프로젝트 레포 (init이 생성·커밋, 프로젝트별 튜닝)
 
@@ -141,7 +147,7 @@ your-project/
 
 ### 2.3 워커 archetype 모델 — **[확정: 상속 + 오버라이드]**
 
-- 플러그인이 6개 원형을 보유: **backend / frontend / test / explorer / architect / devops**.
+- 플러그인이 `templates/archetypes/`에 6개 원형 보유: **backend / frontend / test / explorer / architect / devops**.
 - 각 원형은 역할 골격 + 플레이스홀더(`{{STACK}}`, `{{TEST_CMD}}`, `{{CONVENTIONS}}` 등).
 - `init`이 triage로 읽은 프로젝트 값으로 빈칸을 채워 **레포 `.claude/agents/`에 인스턴스 생성**.
 - 프로젝트가 원형에 없는 역할이 필요하면 그 프로젝트 레포에만 추가(오버라이드/확장).
@@ -204,7 +210,7 @@ your-project/
 | 항목 | 소재 | init이 프로젝트 튜닝? | 비고 |
 |---|---|---|---|
 | `skills/` (엔진 진입점) | **플러그인 (고정)** | ❌ | 1회 배포·전 프로젝트 재사용 |
-| `agents/archetypes`, `agents/{reviewer,critic}` 베이스, `hooks/`, `scripts/` | **플러그인 (고정)** | ❌ | 범용 로직 |
+| `templates/archetypes`, `agents/{reviewer,critic}`, `hooks/`, `scripts/`, `templates/` | **플러그인 (고정)** | ❌ | 범용 로직 |
 | `rules/` | 레포 | ✅ | 프로젝트 컨벤션 |
 | `agents/` (인스턴스) | 레포 | ✅ | archetype → 스택 맞춰 빈칸 채움 |
 | `agent-memory/` | 레포 | ✅ 자동 | init은 빈 그릇만, 이후 에이전트가 누적 |
