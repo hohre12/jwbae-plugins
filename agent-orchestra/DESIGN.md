@@ -325,20 +325,25 @@ your-project/
 |---|---|---|
 | `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"` | 프로젝트 `.claude/settings.json` (커밋) | ⚠️ **다음 세션부터 적용**. init 후 재실행 안내 |
 | `teammateMode = "tmux"` | 프로젝트 `.claude/settings.json` (커밋) | cmux shim이 가로챔 |
-| `--dangerously-skip-permissions` (= bypassPermissions) | **`cgo` alias (셸)** | **[확정]** 사용자가 이미 `alias cgo="claude --dangerously-skip-permissions"` 사용. settings.json에 둘 필요 없음 |
+| `--dangerously-skip-permissions` (= bypassPermissions) | **`cgo` alias (셸)** | **[확정]** `cmux claude-teams`가 인자를 claude로 전달하므로 `alias cgo="cmux claude-teams --dangerously-skip-permissions"`로 묶음(§7.1). settings.json에 둘 필요 없음 |
 
 → env 적용 특성상 **Phase 1(init·셋업)과 Phase 2(실사용)는 세션이 갈리는 게 정상**.
 
 ### 7.1 일상 진입 = `cgo` 한 번 — **[확정]**
 
-- **bypass** = `cgo` 플래그가 처리. **AGENT_TEAMS env** = 프로젝트 `.claude/settings.json`이 처리.
-  → 이 둘 때문에 `cmux claude-teams`를 매일 칠 필요는 없다.
-- `cmux claude-teams`의 *유일한 잔여 역할* = tmux→cmux 패널 shim. 이를 `cgo`에 결합:
+`cmux claude-teams`는 **런처**다(검증됨): `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 설정 +
+`--teammate-mode auto` + tmux 유사 env(TMUX/TMUX_PANE/TERM) 주입 + private tmux shim을 PATH 앞에
+prepend + **이후 인자를 claude로 전달하며 claude를 직접 실행**한다.
+
+- 따라서 올바른 alias는 인자를 전달하는 형태다(런처가 claude를 실행하므로 별도 `&& claude` 불필요):
   ```sh
-  alias cgo="cmux claude-teams && claude --dangerously-skip-permissions"
+  alias cgo="cmux claude-teams --dangerously-skip-permissions"
   ```
-  → 일상 진입은 `cgo` 한 번으로 끝.
-- ⚠️ shim이 세션 단위인지 영구 등록 가능한지는 **구현 후 실측**(§11.1). 결과에 따라 alias 결합 방식 확정.
+  → 일상 진입은 `cgo` 한 번. bypass는 전달된 플래그가, 팀 활성/패널은 런처가 처리.
+- shim은 **세션 단위**(런처가 매 실행마다 설정) → 영구 PATH 등록 불필요. 항상 `cgo`(런처)로 진입하면 됨.
+- `teammateMode`: 런처가 `auto` + TMUX env 주입으로 이미 cmux split panes를 띄우므로 `.claude/settings.json`의
+  `teammateMode: "tmux"`는 **불필요**(비-cmux 실행 대비 belt-and-suspenders로 둘 수는 있음).
+- 자세한 셋업·실측 체크리스트: `docs/cmux-setup.md`.
 
 ---
 
@@ -354,7 +359,7 @@ your-project/
 
 ```
 [평생 1회]   cmux 설치 → claude plugin marketplace add <repo> → claude plugin install orchestra
-              → cgo alias 결합: alias cgo="cmux claude-teams && claude --dangerously-skip-permissions"
+              → cgo alias 결합: alias cgo="cmux claude-teams --dangerously-skip-permissions"
 [프로젝트 1회] cd 프로젝트 → cgo → /orchestrate init
               → triage(그린필드=표준 인터뷰·승인 / 코드 있음=분석) → .claude/ 생성·커밋(env teams=1, teammateMode tmux)
               → (세션 재시작: env 적용)
@@ -409,10 +414,12 @@ v2 항목들이 나중에 깔끔히 붙도록, v1에서 **호출 인터페이스
 
 ### 11.1 구현 시 실측 확인(설계 변경 아님)
 
-- `cmux claude-teams` 정확한 명령/플래그 + **shim이 세션 단위인지 영구 등록 가능한지** (cgo alias 결합 방식 확정)
-- `teammateMode: "tmux"`가 cmux shim 위에서 패널을 실제로 띄우는지
-- `Stop` 훅에서 `~/.claude/teams/` 활성 팀 탐지 방식
-- `claude plugin validate` 통과 확인
+- ✅ `cmux claude-teams` = 런처(env+auto+shim+claude 실행, 인자 전달), shim은 세션 단위 →
+  alias `cgo="cmux claude-teams --dangerously-skip-permissions"` 확정 (§7.1, `docs/cmux-setup.md`)
+- ⏳ 인터랙티브 실측(`docs/cmux-setup.md` 체크리스트): 팀원이 실제 cmux 패널로 뜨는지, reviewer(파랑)/
+  critic(빨강) 색 구분, 패널 클릭 개입, cmux 버전의 `claude-teams` 지원
+- ✅ `claude plugin validate` 통과 확인 (전 태스크에서 통과)
+- ⏳ E2E: 빈 프로젝트에서 init→run→gate→report (Task #13, 인터랙티브)
 
 ---
 
