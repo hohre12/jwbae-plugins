@@ -59,6 +59,19 @@
       "license": "MIT",
       "keywords": ["sns", "social-media", "content", "publishing"],
       "category": "content"
+    },
+    {
+      "name": "agent-orchestra",
+      "source": "./agent-orchestra",
+      "description": "Observable multi-agent orchestration. An orchestrator leads a native Agent Team — dynamic workers plus a standing reviewer and an adversarial critic — watched live in cmux panes. Standard .claude scaffolding, Redmine briefing, Remote Control.",
+      "author": {
+        "name": "jwbae"
+      },
+      "homepage": "https://github.com/hohre12/jwbae-plugins/tree/main/agent-orchestra",
+      "repository": "https://github.com/hohre12/jwbae-plugins",
+      "license": "MIT",
+      "keywords": ["agent-teams", "orchestrator", "multi-agent", "cmux", "code-review", "agent-memory"],
+      "category": "development"
     }
   ]
 }

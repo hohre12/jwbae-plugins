@@ -1,0 +1,21 @@
+{
+  "name": "agent-orchestra",
+  "displayName": "Agent Orchestra",
+  "version": "0.1.0",
+  "description": "Observable multi-agent orchestration for Claude Code. An orchestrator leads a native Agent Team — dynamic workers plus a standing reviewer and an adversarial critic — that you watch collaborate live in cmux panes. Includes standard .claude scaffolding, Redmine briefing, and Remote Control flow.",
+  "author": {
+    "name": "jwbae",
+    "email": "hohre12@gmail.com"
+  },
+  "homepage": "https://github.com/hohre12/jwbae-plugins/tree/main/agent-orchestra",
+  "repository": "https://github.com/hohre12/jwbae-plugins",
+  "license": "MIT",
+  "keywords": [
+    "agent-teams",
+    "orchestrator",
+    "multi-agent",
+    "cmux",
+    "code-review",
+    "agent-memory"
+  ]
+}
