@@ -1,0 +1,15 @@
+---
+paths:
+  - "{{API_GLOBS}}"
+---
+
+# API design conventions — {{PROJECT_NAME}}
+
+<!-- Loaded only when working with files matching the paths above. Edit globs to match
+     this project (e.g. "src/api/**/*", "**/handlers/**", "**/routes/**"). -->
+
+- Validate all inputs at the boundary; never trust client data.
+- Use the project's standard response/error shape consistently: {{API_RESPONSE_SHAPE}}.
+- Preserve existing public contracts and types; if a signature must change, trace and update all callers.
+- Authorize every endpoint; never expose data without an access check.
+- Document request/response shapes where the project does (e.g. OpenAPI).

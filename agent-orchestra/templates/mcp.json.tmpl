@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "{{REDMINE_MCP_COMMAND}}",
+      "args": {{REDMINE_MCP_ARGS}},
+      "env": {
+        "REDMINE_URL": "{{REDMINE_URL}}",
+        "REDMINE_API_KEY": "${REDMINE_API_KEY}"
+      }
+    },
+    "supabase": {
+      "command": "{{SUPABASE_MCP_COMMAND}}",
+      "args": {{SUPABASE_MCP_ARGS}},
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

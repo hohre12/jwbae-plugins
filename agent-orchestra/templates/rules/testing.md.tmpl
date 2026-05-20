@@ -1,0 +1,15 @@
+---
+paths:
+  - "{{TEST_GLOBS}}"
+---
+
+# Testing conventions — {{PROJECT_NAME}}
+
+<!-- Loaded only when working with files matching the paths above. Edit globs to match
+     this project (e.g. "tests/**/*", "**/*.test.ts", "**/*_test.py"). -->
+
+- Run the suite with `{{TEST_CMD}}`; it must pass before a task is marked done.
+- Tests must be able to **fail** when behavior is wrong — no tautological assertions.
+- Cover the failure modes, not just the happy path: invalid input, boundaries, empty/null, errors.
+- Keep tests deterministic (no hidden time/order/network dependence).
+- Test behavior and contracts, not volatile implementation details.

@@ -1,0 +1,30 @@
+# {{PROJECT_NAME}}
+
+<!-- Orchestrator SSOT for Agent Orchestra. Keep under 200 lines, specific and concise.
+     The /agent-orchestra:run reconcile loop proposes updates here (you approve). -->
+
+## Stack
+{{STACK}}
+
+## Commands
+- Build: `{{BUILD_CMD}}`
+- Test: `{{TEST_CMD}}`
+- Lint/format: `{{LINT_CMD}}`
+
+## Conventions
+{{CONVENTIONS}}
+
+<!-- Path-scoped details live in .claude/rules/ and load only for matching files. -->
+
+## Project maturity
+Stage: {{MATURITY_STAGE}}  <!-- greenfield | spec | in-development | mature | legacy -->
+
+## Agent Orchestra team
+- Workers (archetype instances in `.claude/agents/`): {{WORKER_ROSTER}}
+- Standing reviewer (blue) + adversarial critic (red) sign off on every change.
+
+## Working agreement
+- Every task runs as an **observable Agent Team**; the reviewer and critic must approve
+  before work is reported done — independent review corrects single-agent bias.
+- **Do it right the first time:** no temporary measures, no swallowed errors, no silent
+  omissions, no "fix later". The critic blocks these.
