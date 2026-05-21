@@ -111,6 +111,7 @@ agent-orchestra/                    # jwbae-plugins 안의 플러그인 디렉�
 │   ├── run/SKILL.md                # /agent-orchestra:run      ← 오케스트레이터 두뇌
 │   └── briefing/SKILL.md           # /agent-orchestra:briefing ← Redmine 브리핑
 ├── agents/                         # 자동 발견되는 실제 플러그인 에이전트
+│   ├── orchestrator.md             #   메인 스레드 페르소나 (init이 프로젝트 default agent로 지정)
 │   ├── reviewer.md                 #   memory: project (color: blue)
 │   └── critic.md                   #   memory: project (color: red)
 ├── hooks/
@@ -303,6 +304,21 @@ your-project/
 
 재조정이 팀 변경을 감지하면 **제안만 하고 사용자 승인 후 적용**. 자동 적용 안 함.
 
+### 5.4 always-on 오케스트레이터 — **[확정: 프로젝트 스코프 / v1.1]**
+
+`/agent-orchestra:run`을 매번 치지 않아도 모든 실질 작업이 팀+게이트를 거치게 한다.
+
+- **메커니즘:** `agents/orchestrator.md`(메인 스레드 페르소나) + `init`이 프로젝트
+  `.claude/settings.json`에 **`"agent": "orchestrator"`** 기록(공식 `agent` 설정, project 스코프 지원).
+  → 그 프로젝트의 메인 세션이 *항상* 오케스트레이터. 다른 프로젝트는 영향 없음(전역 아님).
+- **비대칭이 핵심:** 메인 스레드는 본래 *딱 하나* 존재하므로 거기에 오케스트레이터 성격을 영구 부여하는 건
+  공짜(always-on). 리뷰어/감시자는 *반응형 팀원*(검토 대상이 있을 때만 의미)이라 상주시키지 않고,
+  **오케스트레이터가 실질 작업마다 반드시 소환 + 게이트로 강제**한다. 즉 "리뷰어/감시자 항상"은
+  *프로세스 상주*가 아니라 *규칙*("모든 실질 작업은 사인오프를 거친다")으로 보장된다.
+- **오케스트레이터의 분기:** 단순 질문은 직접 답, 실질 작업은 팀+게이트, 미설정 프로젝트는 init 안내.
+- `/agent-orchestra:run`은 명시 트리거로 유지(기본 동작을 수동으로도 호출 가능).
+- ⏳ 실측 필요: 메인 스레드 에이전트가 Agent Team 리드로 팀을 스폰하는지(인터랙티브 확인).
+
 ---
 
 ## 6. cmux 통합 (시각화·격리)
@@ -433,6 +449,8 @@ v2 항목들이 나중에 깔끔히 붙도록, v1에서 **호출 인터페이스
   - Redmine 브리핑 + 네이티브 Remote Control — 요구사항 3·4
   - 플러그인 패키징(공유 가능, 비밀정보 미포함) — 목적 3
   - **v2 인터페이스 seam(`critic.review`, `investigate_incident`)은 v1에 미리 고정** (§10.1)
+- **v1.1 (always-on, 프로젝트 스코프):** `orchestrator` 메인 스레드 페르소나 + init이 프로젝트
+  `agent: orchestrator` 설정 → `/run` 없이도 모든 실질 작업이 팀+게이트를 거침 (§5.4)
 - **v2 (차후 추가, seam에 꽂기만):**
   - GPT 이종 감시자 (seam 뒤 구현만 교체)
   - 서버 상주 진단 에이전트, Discord 창구

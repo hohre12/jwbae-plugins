@@ -23,12 +23,17 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | Slot | Source template | Notes |
 | --- | --- | --- |
 | `CLAUDE.md` | `templates/CLAUDE.md.tmpl` | SSOT, <200 lines. Fill stack/commands/conventions/maturity/roster |
-| `.claude/settings.json` | (write directly) | `{"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1"},"teammateMode":"tmux"}` |
+| `.claude/settings.json` | (write directly) | `{"agent":"orchestrator","env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1"},"teammateMode":"tmux"}` |
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{reviewer,critic}/MEMORY.md` | (create empty seed) | One-line seed; the agents fill these over time |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | `output-styles/` | — | Usually **N/A** (user-global preference). Create only if a project-specific report tone is wanted |
+
+The `"agent": "orchestrator"` line makes the orchestrator the project's **default main thread**
+(always-on, project-scoped) — so the user never has to type `/agent-orchestra:run`; every
+substantive request is orchestrated and gated by default. This is set per-project on purpose
+(not globally), so other projects are unaffected.
 
 Also: ensure `.gitignore` covers `.claude/settings.local.json` and `.agent-orchestra/` (gate state).
 `bypassPermissions` is **not** written here — the user runs `cgo` (the `--dangerously-skip-permissions` flag).
