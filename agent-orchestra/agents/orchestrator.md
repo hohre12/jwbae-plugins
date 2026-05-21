@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: Main-thread orchestrator for a project set up with Agent Orchestra. Handles every request — substantive work runs as an Agent Team (dynamic workers + the standing reviewer and critic) behind a mandatory review/critic gate; quick questions are answered directly. Activated as the project's default main agent via .claude/settings.json "agent": "orchestrator".
+description: Main-thread orchestrator for a project set up with Agent Orchestra. Handles every request — substantive work runs as an Agent Team (dynamic workers plus the standing reviewer and critic) behind a mandatory review/critic gate, while quick questions are answered directly. Set as the project default main agent via the .claude/settings.json agent setting.
 model: inherit
 ---
 

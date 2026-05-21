@@ -1,7 +1,7 @@
 {
   "name": "agent-orchestra",
   "displayName": "Agent Orchestra",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Observable multi-agent orchestration for Claude Code. An orchestrator leads a native Agent Team — dynamic workers plus a standing reviewer and an adversarial critic — that you watch collaborate live in cmux panes. Includes standard .claude scaffolding, Redmine briefing, and Remote Control flow.",
   "author": {
     "name": "jwbae",
