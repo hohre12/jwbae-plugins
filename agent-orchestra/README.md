@@ -16,10 +16,12 @@ Remote Control.
 > See [`DESIGN.md`](./DESIGN.md) for the full design (§13 maps the 5 goals, §14 covers v1.3), and
 > [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) for the interactive test plan.
 >
-> Once set up with `/agent-orchestra:init` (which proposes its plan and waits for your
-> approval), the orchestrator becomes the project's default agent — every substantive request
-> runs as a reviewed/critiqued team automatically. Generated docs land in
-> `docs/agent-orchestra/`; domain rules in `.claude/knowledge/` load into every session.
+> Set up a project with `/agent-orchestra:init` (which proposes its plan and waits for your
+> approval). Then run substantive work with **`/agent-orchestra:run <request>`** (or let Claude
+> auto-invoke it for clearly substantive coding work) — it runs as a reviewed/critiqued Agent
+> Team. It's **not always-on**: quick questions and one-line edits stay plain Claude, so you can
+> opt out anytime. Project PRD lives at `docs/PRD.md`; tool artifacts under `docs/agent-orchestra/`;
+> domain rules in `.claude/knowledge/` load into every session.
 
 ## Why
 
@@ -66,9 +68,10 @@ Then:
 cmux
 cd ~/your-project
 cgo
-/agent-orchestra:init                 # once per project (re-runnable)
+/agent-orchestra:init                 # once per project (re-runnable); proposes plan, waits for approval
 # relaunch so the teams env applies, then:
-/agent-orchestra:run <your request>   # watch workers + reviewer + critic in panes
+/agent-orchestra:run <your request>   # substantive work → reviewed/critiqued team in panes
+# quick questions / one-line edits: just ask — Orchestra is not always-on
 /agent-orchestra:briefing             # (optional) start from assigned Redmine issues
 ```
 

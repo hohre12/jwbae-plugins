@@ -23,10 +23,10 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | Slot | Source template | Notes |
 | --- | --- | --- |
 | `CLAUDE.md` | `templates/CLAUDE.md.tmpl` | SSOT, <200 lines. Fill stack/commands/conventions/maturity/roster |
-| `.claude/settings.json` | (write directly) | `{"agent":"orchestrator","env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1"},"teammateMode":"tmux"}` |
+| `.claude/settings.json` | (write directly) | `{"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1"},"teammateMode":"tmux"}` — **no `agent` key** (Agent Orchestra is invoked, not always-on) |
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
-| `.claude/agent-memory/{orchestrator,reviewer,critic}/MEMORY.md` | (create empty seed) | One-line seed; the agents fill these over time. Includes `orchestrator/` (coordination/planning memory) — committed & shared, consistent with reviewer/critic |
+| `.claude/agent-memory/{orchestrator,reviewer,critic}/MEMORY.md` | (create empty seed) | Concise index seed; agents fill over time. `orchestrator/` = coordination/planning memory (the `/run` skill reads/writes it). Committed & shared |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | **output dir** | (create dirs) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/` with `prd/ design/ review/ reports/`. Fill `{{OUTPUT_DIR}}` in CLAUDE.md. Goal 4 |
 | **`.claude/knowledge/`** | (create + `index.md` + README) | Domain/business rules folder. Create `index.md` (seed, imported by CLAUDE.md `@import`) + `README.md` (usage). Goal 5 |
@@ -37,10 +37,12 @@ per project; agents save deliverables there (not scattered). Knowledge folder = 
 context: `.claude/knowledge/index.md` is `@import`ed by `CLAUDE.md` so it's in every session; always-apply
 domain *rules* can also go in `.claude/rules/` (auto-loaded). See § Domain knowledge below.
 
-The `"agent": "orchestrator"` line makes the orchestrator the project's **default main thread**
-(always-on, project-scoped) — so the user never has to type `/agent-orchestra:run`; every
-substantive request is orchestrated and gated by default. This is set per-project on purpose
-(not globally), so other projects are unaffected.
+**Invocation model (not always-on):** do **not** set an `agent` key. Agent Orchestra runs only when
+`/agent-orchestra:run` is invoked — explicitly by the user, or auto-invoked by Claude when a request
+is clearly substantive coding work. Outside that, the project behaves as plain Claude (so the user can
+opt out anytime). Add a one-line nudge in `CLAUDE.md` ("substantive code/design/analysis → use
+`/agent-orchestra:run`") so it isn't forgotten. This matches plugin conventions and AI-DLC's
+invoked, checkpoint-based model.
 
 Also: ensure `.gitignore` covers `.claude/settings.local.json` and `.agent-orchestra/` (gate state).
 `bypassPermissions` is **not** written here — the user runs `cgo` (the `--dangerously-skip-permissions` flag).
