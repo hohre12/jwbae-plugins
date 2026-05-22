@@ -4,6 +4,10 @@ Detail for `/agent-orchestra:run`.
 
 ## Team-formation protocol
 
+- **Use the NATIVE Agent Teams mechanism, never the Task/subagent tool.** Teammates must be real
+  Agent Team members (own panes in tmux/iTerm2, shared task list, mailbox) so they collaborate and
+  challenge each other. Subagents run in-process ("Running N agents"), can't open panes, and can't
+  message each other — if you see that, you used the wrong mechanism.
 - You (the session that runs this skill) are the **lead** for the team's lifetime — Agent
   Teams fix the lead and forbid nested teams, so don't try to promote a teammate or have a
   teammate spawn its own team.

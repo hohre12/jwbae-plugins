@@ -21,8 +21,12 @@ in the user's language** (mirror the language they write in).
 
 1. **Light reconcile** against `CLAUDE.md` — if the project's stage/roster has drifted, propose
    changes and let the user approve (never auto-apply).
-2. **Form an Agent Team** — spawn the workers this task needs from `.claude/agents/` (give each a
-   distinct slice of files) **plus the standing `reviewer` and `critic`**.
+2. **Create a NATIVE Agent Team — not subagents.** Explicitly create an agent team (the native
+   Agent Teams mechanism) so teammates open in their own panes, share a task list, and message
+   each other via the mailbox. **Do NOT use the Task/subagent tool for this** — subagents run
+   in-process, show as "Running N agents", and cannot talk to each other; that defeats the whole
+   purpose. Phrase it as creating a team and spawning teammates. Spawn: the workers this task
+   needs from `.claude/agents/` (distinct file slices) **plus the standing `reviewer` and `critic`**.
 3. **Inject standing-agent memory** — before spawning the reviewer/critic, read
    `.claude/agent-memory/<name>/MEMORY.md` into their spawn prompts, and tell them to write
    durable lessons back when done.

@@ -26,7 +26,11 @@ The request: $ARGUMENTS
    If the project has clearly moved stages or needs different workers, **propose** the change
    and let the user approve (don't auto-apply); for a full reconcile, suggest `/agent-orchestra:init`.
 
-2. **Form the team — mandatory, this is step one of every run.** Create an Agent Team:
+2. **Create a NATIVE Agent Team — mandatory, step one of every run.** Explicitly create an
+   *Agent Team* (the native mechanism with panes, a shared task list, and a mailbox). **Do NOT
+   delegate this with the Task/subagent tool** — subagents run in-process (shown as "Running N
+   agents"), can't open panes, and can't message each other. Use Agent Teams so teammates
+   collaborate. Then:
    - Spawn the **workers** this request needs, from the project's `.claude/agents/` (archetype
      instances). Give each a distinct slice of files so they don't collide.
    - Spawn the **standing reviewer** (`reviewer` agent) and **adversarial critic** (`critic` agent)
