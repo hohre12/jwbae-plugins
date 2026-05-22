@@ -12,9 +12,9 @@ cmux), distinct from harness-pipeline tools. It also scaffolds the standard `.cl
 layout so nothing gets forgotten, briefs you on assigned Redmine issues, and works over
 Remote Control.
 
-> **Status: v0.3.0 (v1.2: HITL approval, output paths, domain knowledge, native gate hooks;
-> pending interactive E2E).** See [`DESIGN.md`](./DESIGN.md) for the full design (§13 maps the
-> 5 goals), and [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) for the interactive test plan.
+> **Status: v0.4.0 (v1.3: clarify→decompose→per-task flow, TDD test-first, orchestrator memory).**
+> See [`DESIGN.md`](./DESIGN.md) for the full design (§13 maps the 5 goals, §14 covers v1.3), and
+> [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) for the interactive test plan.
 >
 > Once set up with `/agent-orchestra:init` (which proposes its plan and waits for your
 > approval), the orchestrator becomes the project's default agent — every substantive request

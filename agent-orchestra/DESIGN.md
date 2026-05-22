@@ -456,6 +456,10 @@ v2 항목들이 나중에 깔끔히 붙도록, v1에서 **호출 인터페이스
   - 목표4: `{{OUTPUT_DIR}}`(기본 `docs/agent-orchestra/{prd,design,review,reports}/`)에 산출물 저장
   - 목표5: `.claude/knowledge/` + CLAUDE.md `@import`(native 로드) + rules/
   - native 게이트: `TaskCompleted`/`TeammateIdle` 훅 + Stop 백스톱
+- **v1.3 (흐름·TDD·오케스트레이터 메모리):** §14
+  - 오케스트레이터 흐름: 이해·구체화(HITL) → 분해·승인(HITL) → task 루프(계약→TDD→게이트→**task별 보고**)
+  - TDD: 독립 `test` 워커가 실패 테스트 먼저, 구현은 green (task 의존성으로 test-first 강제)
+  - 오케스트레이터 `memory: project` (커밋·공유)
 - **v2 (차후 추가, seam에 꽂기만):**
   - GPT 이종 감시자 (seam 뒤 구현만 교체)
   - 서버 상주 진단 에이전트, Discord 창구
@@ -480,6 +484,25 @@ v2 항목들이 나중에 깔끔히 붙도록, v1에서 **호출 인터페이스
 
 ⏳ 유일한 인터랙티브 미검증: 메인 스레드 오케스트레이터가 실제로 Agent Team을 리드로 스폰하는지(§5.4),
 HITL 승인 일시정지 UX. cmux 실측으로 확정.
+
+## 14. v1.3 — HITL 흐름 · TDD · 오케스트레이터 메모리
+
+**오케스트레이터 흐름 (HITL 리듬):**
+1. **이해·구체화** — 요구 재진술 + 애매하면 `AskUserQuestion`으로 질문해 구체화(명확하면 건너뜀). *구현 전.*
+2. **분해·승인** — task로 쪼개 계획 제시 → 짧은 승인("그냥 진행" escape). 소규모는 단일 task.
+3. **task 루프(한 팀, 공유 task list)** — 각 task: 계약 합의 → TDD → 게이트 → **task 완료 시 사용자 보고 → 다음**.
+4. **마무리** — 최종 보고를 `docs/agent-orchestra/reports/`에 저장.
+→ HITL = 구체화 + 분해승인 + task별 보고. (매 tool마다 X, 끝까지 자율 X.)
+
+**TDD (test-first, 독립 작성):**
+- 독립 `test` 워커가 **계약 기준 실패 테스트(red)를 먼저** 작성(구현자는 테스트 안 씀 — 편향 교정의 테스트판).
+- 구현 워커는 green으로 만들고 리팩터. **네이티브 task 의존성**(impl task가 test task에 의존)으로 test-first를 구조적으로 강제.
+- reviewer가 "테스트가 실패할 수 있는지" 검증.
+
+**오케스트레이터 메모리:**
+- `memory: project` → `.claude/agent-memory/orchestrator/MEMORY.md`(커밋·공유, reviewer/critic과 일관).
+- auto-memory(홈·머신-로컬)와 달리 레포 커밋·공유. 본문이 직접 read/write도 지시(메인 스레드 auto-fire 무관하게 동작).
+- 헤드리스 검증: init이 `agent-memory/{orchestrator,reviewer,critic}/` 생성 확인 ✅.
 
 ## 부록 A. 핵심 참고 문서
 
