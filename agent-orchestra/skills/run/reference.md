@@ -59,6 +59,32 @@ normal pauses. Keep the sentinel accurate — it is what the hooks read.
 Write the sentinel with the `Write` tool (create the directory if needed). Keep it accurate —
 it is the backstop that enforces the bias-correction gate.
 
+## TDD & task ordering (per task)
+
+Enforce test-first using **native Agent Team task dependencies**:
+
+1. **Agree the contract first** — the interface/signature/behavior the task must satisfy (the
+   orchestrator or an architect teammate states it). Both the test and impl workers work to it.
+2. **Test task (red):** the independent `test` worker writes tests against the contract that
+   **fail** now (confirm they fail — a test that can't fail is worthless). It does **not** write
+   implementation.
+3. **Impl task (green):** create it with a **dependency on the test task** (a task with an open
+   dependency can't be claimed until the dependency completes — this is how test-first is enforced
+   structurally). The impl worker makes the tests pass, then refactors. It does **not** write its
+   own tests first.
+4. **Gate:** reviewer + critic review the result (reviewer checks the tests can actually fail and
+   cover failure modes; critic checks the contract was the right one).
+
+The implementer never authors the tests — independent test authorship is the same bias-correction
+principle as independent review, applied to tests.
+
+## Per-task rhythm (HITL)
+
+Work the shared task list **one task at a time**. After each task passes the gate, **report to the
+user** (what changed, how verified) and proceed. Clarify the requirement up front and approve the
+task plan once; don't run a large job end-to-end without these checkpoints, and don't ask on every
+tool call either.
+
 ## When the gate fails
 
 - Route each finding to the **responsible worker** by name via the mailbox; have them fix and
