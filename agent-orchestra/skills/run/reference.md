@@ -28,7 +28,7 @@ Native `memory: project` may not auto-load when an agent runs as a *teammate*, s
 
 If a memory file doesn't exist yet, note that and let the agent create it on first write.
 
-## Gate contract (couples with the Stop hook)
+## Gate contract (enforced by native team hooks + Stop backstop)
 
 Maintain a sentinel at `.agent-orchestra/state/gate.json` (gitignored). Schema:
 
@@ -42,10 +42,15 @@ Maintain a sentinel at `.agent-orchestra/state/gate.json` (gitignored). Schema:
   set `status: "approved"`.
 - After reporting and team cleanup: set `approved` (or remove the file).
 
-The **Stop hook** blocks the turn only when `status == "review-pending"` — i.e. work was
-delivered but the gate hasn't passed. It does **not** block while `in-progress` (so you can
-pause for the user mid-work) or once `approved`. This makes "report done without review"
-structurally hard without trapping normal pauses.
+The sentinel drives three hooks (you don't call them; they run automatically):
+- **`TaskCompleted`** — while `review-pending`, a non-review teammate cannot mark a task
+  complete (the reviewer/critic completing their own review tasks is allowed).
+- **`TeammateIdle`** — while `review-pending`, the reviewer/critic cannot go idle until they sign off.
+- **`Stop`** (session backstop) — while `review-pending`, the lead's turn is blocked, so you can't
+  report done. It does **not** block while `in-progress` (pause for the user freely) or once `approved`.
+
+Together these make "close work / report done without review" structurally hard, without trapping
+normal pauses. Keep the sentinel accurate — it is what the hooks read.
 
 Write the sentinel with the `Write` tool (create the directory if needed). Keep it accurate —
 it is the backstop that enforces the bias-correction gate.
