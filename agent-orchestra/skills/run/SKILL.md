@@ -53,8 +53,9 @@ The request: $ARGUMENTS
    - **Report at the task boundary (HITL):** when the task passes, tell the user what was done and how
      it was verified, then proceed to the next task.
 
-5. **Wrap up.** After all tasks pass, give a final synthesis and save the run report under the project
-   output dir (CLAUDE.md "Output artifacts", default `docs/agent-orchestra/reports/`). Clean up the team.
+5. **Wrap up.** After all tasks pass, give a final synthesis and (for substantial work) save the run
+   report at `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/report.md` (small changes: no file).
+   The project PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral). Then clean up the team.
 
 ## HITL cadence
 Clarify up front (1), approve the task plan once (2), report at each task boundary (4). Not every tool

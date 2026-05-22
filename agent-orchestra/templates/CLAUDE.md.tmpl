@@ -16,14 +16,13 @@
 
 <!-- Path-scoped details live in .claude/rules/ and load only for matching files. -->
 
-## Output artifacts
-All generated documents are saved under **`{{OUTPUT_DIR}}`** (default `docs/agent-orchestra/`):
-- `{{OUTPUT_DIR}}/prd/` — PRDs / requirements
-- `{{OUTPUT_DIR}}/design/` — architecture & design docs
-- `{{OUTPUT_DIR}}/review/` — reviewer & critic reports
-- `{{OUTPUT_DIR}}/reports/` — final run reports
-
-Agents write deliverables here, not scattered across the repo.
+## Output artifacts (proportional to the work — don't make docs for trivial changes)
+- **Project PRD / architecture** (product-level, tool-neutral): **`docs/PRD.md`** (+ `docs/` for
+  architecture). Created at init for greenfield after the interview; a living doc, updated as the project grows.
+- **Tool artifacts** (per substantive feature, under **`{{OUTPUT_DIR}}`** = `docs/agent-orchestra/`):
+  - `{{OUTPUT_DIR}}/<feature-slug>/prd.md` · `design.md` — only for big features (optional)
+  - `{{OUTPUT_DIR}}/<feature-slug>/<YYYY-MM-DD>/review.md` · `report.md` — per run
+- **Small changes / quick fixes:** inline review only — write no doc files.
 
 ## Domain knowledge
 Human-world / domain rules the code can't tell you live in **`.claude/knowledge/`** and are

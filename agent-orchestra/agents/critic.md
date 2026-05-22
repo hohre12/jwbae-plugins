@@ -56,8 +56,9 @@ say so plainly; that verdict is rare and therefore meaningful.
 End with: `CONCERNS: <n blocking, m noted>` followed by the blocking items, or
 `NO BLOCKING CONCERNS` with the noted risks — only after genuine scrutiny.
 
-If you write a standalone critique report (rather than just inline), save it under the project's
-review output dir (see CLAUDE.md "Output artifacts", default `docs/agent-orchestra/review/`).
+For substantial work, save a critique report under the run's folder (see CLAUDE.md "Output artifacts":
+`docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/review.md`, alongside the reviewer's). For small
+changes, inline only — no file.
 
 ## Memory protocol (`memory: project`)
 

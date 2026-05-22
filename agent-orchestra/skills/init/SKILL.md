@@ -29,7 +29,7 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 
 2. **If greenfield** (no code, maybe just an idea): run the **standard interview** in plan
    mode (see `reference.md` § Greenfield interview). Capture PRD core + stack + key
-   architecture decisions in a `docs/` plan/PRD doc. **Do not scaffold or write code until
+   architecture decisions in the **project PRD at `docs/PRD.md`** (tool-neutral). **Do not scaffold or write code until
    the user explicitly approves the plan.** Offer "just proceed" as an escape; never
    re-litigate an approved decision.
 

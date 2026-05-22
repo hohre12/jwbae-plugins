@@ -28,12 +28,14 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{orchestrator,reviewer,critic}/MEMORY.md` | (create empty seed) | Concise index seed; agents fill over time. `orchestrator/` = coordination/planning memory (the `/run` skill reads/writes it). Committed & shared |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
-| **output dir** | (create dirs) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/` with `prd/ design/ review/ reports/`. Fill `{{OUTPUT_DIR}}` in CLAUDE.md. Goal 4 |
+| **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
 | **`.claude/knowledge/`** | (create + `index.md` + README) | Domain/business rules folder. Create `index.md` (seed, imported by CLAUDE.md `@import`) + `README.md` (usage). Goal 5 |
 | `output-styles/` | — | Usually **N/A** (user-global preference). Create only if a project-specific report tone is wanted |
 
-Output dir = where all generated docs go (PRD/design/review/reports). `{{OUTPUT_DIR}}` is configurable
-per project; agents save deliverables there (not scattered). Knowledge folder = native-loaded domain
+Output paths: **project PRD/architecture → `docs/PRD.md`** (product-level, tool-neutral, created here
+for greenfield). **Tool artifacts → `{{OUTPUT_DIR}}/<feature-slug>/`** (optional `prd.md`/`design.md` for
+big features) **and `<feature-slug>/<YYYY-MM-DD>/{review,report}.md`** per run. Small changes: inline
+review, no files. Knowledge folder = native-loaded domain
 context: `.claude/knowledge/index.md` is `@import`ed by `CLAUDE.md` so it's in every session; always-apply
 domain *rules* can also go in `.claude/rules/` (auto-loaded). See § Domain knowledge below.
 
@@ -90,7 +92,8 @@ Run in plan mode. Reach agreement on exactly these three, then stop and propose 
    spine, sync vs async, auth approach). Leave full data models / API surface for workers.
 
 Rules:
-- The artifact the user approves is the **plan/PRD doc**, not the chat. Write it to `docs/`.
+- The artifact the user approves is the **project PRD**, not the chat. Write it to **`docs/PRD.md`**
+  (tool-neutral, product-level — not under `docs/agent-orchestra/`).
 - Offer "just proceed, I approve" as an escape at every step; keep questions to a/b/c where possible.
 - Once a decision is approved, do not reopen it.
 - Only after explicit approval: scaffold `.claude/` and the skeleton, then hand off.
