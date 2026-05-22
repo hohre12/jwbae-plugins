@@ -55,7 +55,12 @@ The request: $ARGUMENTS
 
 5. **Wrap up.** After all tasks pass, give a final synthesis and (for substantial work) save the run
    report at `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/report.md` (small changes: no file).
-   The project PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral). Then clean up the team.
+   The project PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral).
+   **Then clean up the team in order:** ask each teammate to shut down → **wait until they have
+   actually stopped** (cleanup fails if any teammate is still running) → run team cleanup. Teammate
+   shutdown is slow (they finish their current step first), and **cmux does not auto-close the empty
+   panes** — tell the user they can close leftover panes manually. (This is an Agent Teams / cmux
+   limitation, not something hooks or rules can force; see reference.md § Cleanup.)
 
 ## HITL cadence
 Clarify up front (1), approve the task plan once (2), report at each task boundary (4). Not every tool

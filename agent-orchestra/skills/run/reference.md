@@ -85,6 +85,15 @@ user** (what changed, how verified) and proceed. Clarify the requirement up fron
 task plan once; don't run a large job end-to-end without these checkpoints, and don't ask on every
 tool call either.
 
+## Cleanup (and its limits)
+
+Order matters: **shut down teammates → confirm stopped → `clean up the team`.** Cleanup *fails* if any
+teammate is still running, and Agent Teams shutdown is slow (a teammate finishes its current request
+before exiting). After cleanup, **cmux leaves the now-empty panes open** — there is no reliable
+hook/rule that can auto-close them (no "teammate exited" event, and pane closing isn't a hook concern).
+So: do the ordered cleanup, then tell the user empty panes can be closed manually. The work and the
+gate are unaffected — only the panes linger.
+
 ## When the gate fails
 
 - Route each finding to the **responsible worker** by name via the mailbox; have them fix and
