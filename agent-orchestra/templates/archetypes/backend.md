@@ -16,6 +16,12 @@ and integrations. Stack: **{{STACK}}**.
 - Project conventions you must follow: {{CONVENTIONS}}
 - Build / test / lint: `{{BUILD_CMD}}` / `{{TEST_CMD}}` / `{{LINT_CMD}}`.
 
+## TDD — make the failing tests pass
+The independent `test` worker writes **failing** tests against the agreed contract first. **Do NOT
+write your own tests first.** Your loop: see the red tests → implement the minimum to make them pass
+(green) → refactor under green. If a test seems wrong, raise it with the test worker via mailbox —
+don't quietly rewrite tests to fit your code.
+
 ## Focus
 - Correct, defensive logic: validate inputs, handle errors explicitly, cover boundary/empty cases.
 - Respect existing contracts and types; don't break callers. Trace who calls what before changing a signature.

@@ -16,6 +16,11 @@ glue to backend APIs. Stack: **{{STACK}}**.
 - Project conventions you must follow: {{CONVENTIONS}}
 - Build / test / lint: `{{BUILD_CMD}}` / `{{TEST_CMD}}` / `{{LINT_CMD}}`.
 
+## TDD — make the failing tests pass
+The independent `test` worker writes **failing** tests (component/interaction) against the agreed
+contract first. **Do NOT write your own tests first.** Implement to make them pass (green), then
+refactor. If a test seems wrong, raise it with the test worker via mailbox — don't rewrite tests to fit.
+
 ## Focus
 - Handle every state, not just the happy path: loading, empty, error, and edge data.
 - Accessibility (semantics, labels, keyboard, contrast) and responsive layout are part of "done".
