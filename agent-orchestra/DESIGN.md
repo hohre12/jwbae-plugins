@@ -304,20 +304,19 @@ your-project/
 
 재조정이 팀 변경을 감지하면 **제안만 하고 사용자 승인 후 적용**. 자동 적용 안 함.
 
-### 5.4 always-on 오케스트레이터 — **[확정: 프로젝트 스코프 / v1.1]**
+### 5.4 호출 모델 — **[확정: b+c 호출형 / v1.4, v1.1의 always-on 철회]**
 
-`/agent-orchestra:run`을 매번 치지 않아도 모든 실질 작업이 팀+게이트를 거치게 한다.
+> v1.1에선 `agent: orchestrator`로 *강제 always-on*이었으나, **AI-DLC(체크포인트/bolt 기반)와 플러그인
+> 관례(호출형)와 충돌**하고 opt-out이 불가해 **철회**했다(§14 근거). 대신 **b+c 호출형**:
 
-- **메커니즘:** `agents/orchestrator.md`(메인 스레드 페르소나) + `init`이 프로젝트
-  `.claude/settings.json`에 **`"agent": "orchestrator"`** 기록(공식 `agent` 설정, project 스코프 지원).
-  → 그 프로젝트의 메인 세션이 *항상* 오케스트레이터. 다른 프로젝트는 영향 없음(전역 아님).
-- **비대칭이 핵심:** 메인 스레드는 본래 *딱 하나* 존재하므로 거기에 오케스트레이터 성격을 영구 부여하는 건
-  공짜(always-on). 리뷰어/감시자는 *반응형 팀원*(검토 대상이 있을 때만 의미)이라 상주시키지 않고,
-  **오케스트레이터가 실질 작업마다 반드시 소환 + 게이트로 강제**한다. 즉 "리뷰어/감시자 항상"은
-  *프로세스 상주*가 아니라 *규칙*("모든 실질 작업은 사인오프를 거친다")으로 보장된다.
-- **오케스트레이터의 분기:** 단순 질문은 직접 답, 실질 작업은 팀+게이트, 미설정 프로젝트는 init 안내.
-- `/agent-orchestra:run`은 명시 트리거로 유지(기본 동작을 수동으로도 호출 가능).
-- ⏳ 실측 필요: 메인 스레드 에이전트가 Agent Team 리드로 팀을 스폰하는지(인터랙티브 확인).
+- **(b) 명시 호출**: `/agent-orchestra:run <요구>`로 사용자가 오케스트레이션을 시작(= bolt를 사람이 연다).
+- **(c) 모델 자동호출**: `run` 스킬에 `disable-model-invocation` 없음 + "substantive coding work" 트리거
+  description → Claude가 실질 작업이라 판단하면 자동 호출. 단순 질문/한 줄 수정은 plain Claude.
+- **always-on 아님**: `init`은 `agent` 키를 쓰지 않는다. 평소엔 plain Claude → **언제든 opt-out**.
+- 오케스트레이터는 별도 메인스레드 에이전트가 아니라 **`run` 스킬 자체**(메인 세션이 그 절차로 리드가 됨).
+  오케스트레이터 메모리는 `run` 스킬이 `.claude/agent-memory/orchestrator/MEMORY.md`를 직접 read/write.
+- 리뷰어/감시자는 여전히 *반응형 팀원* — `run` 시 소환 + 게이트로 강제.
+- ✅ 인터랙티브 실측 완료(v1.2~v1.3): 팀 스폰·패널 분할·게이트·메모리 주입 동작 확인.
 
 ---
 
@@ -460,6 +459,10 @@ v2 항목들이 나중에 깔끔히 붙도록, v1에서 **호출 인터페이스
   - 오케스트레이터 흐름: 이해·구체화(HITL) → 분해·승인(HITL) → task 루프(계약→TDD→게이트→**task별 보고**)
   - TDD: 독립 `test` 워커가 실패 테스트 먼저, 구현은 green (task 의존성으로 test-first 강제)
   - 오케스트레이터 `memory: project` (커밋·공유)
+- **v1.4 (호출모델·경로·정리·메모리):** §15
+  - **always-on 철회 → b+c 호출형**(명시 `/run` + substantive work 자동호출), opt-out 가능
+  - 산출물: 프로젝트 PRD=`docs/PRD.md`(분리), 도구산출물=`agent-orchestra/<기능>/<날짜>/`, 무게 비례
+  - 팀 정리 지침 강화(패널 수동닫기는 upstream 한계), 메모리 인덱스 패턴 + 컨텍스트 가드
 - **v2 (차후 추가, seam에 꽂기만):**
   - GPT 이종 감시자 (seam 뒤 구현만 교체)
   - 서버 상주 진단 에이전트, Discord 창구
@@ -503,6 +506,27 @@ HITL 승인 일시정지 UX. cmux 실측으로 확정.
 - `memory: project` → `.claude/agent-memory/orchestrator/MEMORY.md`(커밋·공유, reviewer/critic과 일관).
 - auto-memory(홈·머신-로컬)와 달리 레포 커밋·공유. 본문이 직접 read/write도 지시(메인 스레드 auto-fire 무관하게 동작).
 - 헤드리스 검증: init이 `agent-memory/{orchestrator,reviewer,critic}/` 생성 확인 ✅.
+
+## 15. v1.4 — 호출 모델 · 경로 · 정리 · 메모리
+
+**#3 호출 모델 (always-on 철회 → b+c):** 근거 — AWS AI-DLC는 "조용한 always-on"이 아니라 *3단계 +
+bolt당 10~26 사람 검증 포인트*의 체크포인트 모델이고, 플러그인 관례(및 저자의 immunity/agent-harmony)도
+전부 *호출형*. 강제 always-on은 공격적·관례 이탈·opt-out 불가. → `agent` 키 제거, `/run` 명시+자동호출,
+평소 plain Claude. (§5.4)
+
+**#2 산출물 경로 (분리·기능폴더·무게비례):**
+- 프로젝트 PRD/아키텍처(제품 1급) → **`docs/PRD.md`**(도구 중립, 분리). greenfield 인터뷰 산출, 살아있는 문서.
+- 도구 산출물 → `docs/agent-orchestra/<기능-slug>/[prd|design].md` + `<YYYY-MM-DD>/{review,report}.md`.
+- **무게 비례**: 작은 변경은 인라인 리뷰(파일 X). init은 카테고리 폴더 미리 안 만듦.
+
+**#1 팀 정리:** 종료→정지확인→cleanup 순서 명시. 빈 cmux 패널 자동 닫힘은 **rules/hook으로 불가**(적절한
+이벤트 없음, Agent Teams 느린 종료 + cmux 미닫힘 = upstream 한계) → 수동 닫기 안내.
+
+**#4 컨텍스트/메모리:** `MEMORY.md`=간결 인덱스(200줄/25KB 캡), 상세는 토픽 파일 on-demand(사용자 제안 =
+네이티브 패턴). knowledge `index.md`는 `@import`로 전체 로드되니 짧게 유지(깊은 docs는 링크만). CLAUDE.md
+200줄 가드(초과 시 rules로). → 컨텍스트 압박 대비됨.
+
+✅ 헤드리스 검증(ao-v14): settings에 `agent` 키 없음, 카테고리 폴더 미생성, agent-memory{orchestrator,reviewer,critic} 생성.
 
 ## 부록 A. 핵심 참고 문서
 
