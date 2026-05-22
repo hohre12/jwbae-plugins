@@ -23,7 +23,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | Slot | Source template | Notes |
 | --- | --- | --- |
 | `CLAUDE.md` | `templates/CLAUDE.md.tmpl` | SSOT, <200 lines. Fill stack/commands/conventions/maturity/roster |
-| `.claude/settings.json` | (write directly) | `{"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1"},"teammateMode":"tmux"}` — **no `agent` key** (Agent Orchestra is invoked, not always-on) |
+| `.claude/settings.json` | **MERGE (don't overwrite)** | Read existing first and **preserve keys like `enabledPlugins`** (a project-scope plugin install lives here!). Add `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:"1"` + `teammateMode:"tmux"`. **No `agent` key** (invoked, not always-on) |
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{orchestrator,reviewer,critic}/MEMORY.md` | (create empty seed) | Concise index seed; agents fill over time. `orchestrator/` = coordination/planning memory (the `/run` skill reads/writes it). Committed & shared |

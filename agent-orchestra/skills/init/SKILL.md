@@ -57,9 +57,9 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
    recorded maturity/roster in `CLAUDE.md` and **propose** changes (add/retire workers, stage
    change) the same way — propose → approve → apply. Never auto-apply.
 
-8. **Hand off.** Print what you created/changed and the explicit N/As. Remind the user that
-   the Agent Teams env var takes effect next session, so they should relaunch (`cgo`) before
-   substantive work.
+8. **Hand off.** Print what you created/changed and the explicit N/As. Then they can run
+   substantive work with `/agent-orchestra:run` in the same session (under `cmux claude-teams` the
+   Agent Teams env is already active; the `settings.json` env is a fallback for plain launches).
 
 ## Hard rules
 
@@ -67,6 +67,8 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
   approves the plan (greenfield approves the PRD/plan; brownfield/mature/legacy approve the
   scaffolding plan table). "Just proceed" is the only way to skip the per-item review.
 - Nothing forgotten: every standard slot is created or explicitly marked N/A with a reason.
+- **Merge `.claude/settings.json`, never overwrite it** — read it first and preserve existing keys
+  (especially `enabledPlugins` from a project-scope plugin install). Only add `env` + `teammateMode`.
 - Secrets (Redmine/Supabase keys) go in `.mcp.json` as `${ENV_VAR}` references, never inline.
 - Greenfield: code only after explicit plan approval.
 - This skill proposes; the user approves. Do not auto-apply reconcile changes.
