@@ -49,6 +49,10 @@ invoked, checkpoint-based model.
 Also: ensure `.gitignore` covers `.claude/settings.local.json` and `.agent-orchestra/` (gate state).
 `bypassPermissions` is **not** written here — the user runs `cgo` (the `--dangerously-skip-permissions` flag).
 
+**Context-budget guard:** `CLAUDE.md` loads **in full** every session — keep it under ~200 lines.
+If it grows, move topic-specific instructions into `.claude/rules/` (path-scoped: loaded only when
+Claude touches matching files). Skill `reference.md` files stay under ~500 lines (progressive disclosure).
+
 ## Domain knowledge (goal 5) — native loading
 
 Human-world rules the code can't reveal (business rules, domain constraints, external policies)
@@ -56,8 +60,9 @@ must be loadable by every agent. Use **native loading**, not a bare folder + cus
 
 - Create `.claude/knowledge/` with:
   - `index.md` — concise seed that the project's `CLAUDE.md` `@import`s, so it's in **every
-    session's context** (and thus every teammate, since teammates load CLAUDE.md). It can list
-    and `@import` deeper docs the user adds.
+    session's context**. ⚠️ `@import` loads the file **in full** every session, so keep `index.md`
+    short — it should **list/link** deeper docs (read on demand), **not** `@import` all of them.
+    Importing large knowledge files would bloat every session's context.
   - `README.md` — explains: "Put project domain/business knowledge here as markdown. `index.md`
     is imported into every session; reference detailed files from it."
 - Always-apply domain **rules** (vs reference knowledge) can alternatively live in `.claude/rules/`

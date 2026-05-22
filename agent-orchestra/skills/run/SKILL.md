@@ -16,7 +16,9 @@ You turn the request into an observable Agent Team and coordinate it to a review
 team-formation protocol, memory injection, gate contract, TDD ordering, and cleanup before you start.
 
 You have orchestrator memory at `.claude/agent-memory/orchestrator/MEMORY.md` — read it at the start
-(planning patterns, prior decisions/clarifications) and write durable lessons back when done.
+(planning patterns, prior decisions/clarifications) and write durable lessons back when done. Keep it a
+**concise index** (only ~200 lines / 25KB load each run); put detail in topic files (e.g.
+`decisions.md`, `decomposition.md`) read on demand.
 
 The request: $ARGUMENTS
 

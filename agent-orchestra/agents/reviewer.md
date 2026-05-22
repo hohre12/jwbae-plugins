@@ -71,5 +71,8 @@ but reusable knowledge that makes your next review sharper:
 - modules that are fragile or have bitten before
 - decisions that must not be silently reverted
 
-Keep it tight. Prefer refining and consolidating existing notes over appending endlessly;
-split overgrown topics into separate files and keep `MEMORY.md` as the index.
+**Index pattern (so memory never bloats context):** only the first ~200 lines / 25KB of `MEMORY.md`
+load each run, so keep `MEMORY.md` a **concise index** — short bullets + links to topic files you
+create as detail grows (e.g. `conventions.md`, `recurring-bugs.md`, `fragile-modules.md`). Those topic
+files are read **on demand**, not auto-loaded. Consolidate and refine over appending; the index lists
+what's stored where.

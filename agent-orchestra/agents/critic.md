@@ -68,5 +68,6 @@ this codebase and team** — the kinds of corners that get cut here, the assumpt
 keep proving wrong, the "done" claims that were not. This is what lets you anticipate the
 next shortcut before it happens.
 
-Keep it tight: consolidate and refine over append; `MEMORY.md` is the index, split
-overgrown topics into separate files.
+**Index pattern (so memory never bloats context):** only the first ~200 lines / 25KB of `MEMORY.md`
+load each run — keep it a **concise index** with links to topic files (e.g. `blind-spots.md`,
+`recurring-shortcuts.md`) read on demand. Consolidate over append; the index says what's stored where.
