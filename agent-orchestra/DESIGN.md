@@ -451,12 +451,35 @@ v2 항목들이 나중에 깔끔히 붙도록, v1에서 **호출 인터페이스
   - **v2 인터페이스 seam(`critic.review`, `investigate_incident`)은 v1에 미리 고정** (§10.1)
 - **v1.1 (always-on, 프로젝트 스코프):** `orchestrator` 메인 스레드 페르소나 + init이 프로젝트
   `agent: orchestrator` 설정 → `/run` 없이도 모든 실질 작업이 팀+게이트를 거침 (§5.4)
+- **v1.2 (최종 목표 2·4·5 + native 게이트):** §13
+  - 목표2: init/재조정 propose→approve→apply HITL 게이트(전 단계)
+  - 목표4: `{{OUTPUT_DIR}}`(기본 `docs/agent-orchestra/{prd,design,review,reports}/`)에 산출물 저장
+  - 목표5: `.claude/knowledge/` + CLAUDE.md `@import`(native 로드) + rules/
+  - native 게이트: `TaskCompleted`/`TeammateIdle` 훅 + Stop 백스톱
 - **v2 (차후 추가, seam에 꽂기만):**
   - GPT 이종 감시자 (seam 뒤 구현만 교체)
   - 서버 상주 진단 에이전트, Discord 창구
 - **원칙:** v1은 "한 번에 완벽하게"(원칙 4). 임시 처리·누락·미루기 없이 v1.5 범위까지 한 번에 출시.
 
 ---
+
+## 13. 최종 목표 5개 — 구현 매핑 (v1.2)
+
+사용자가 명시한 최종 목표 5개의 구현 상태:
+
+| # | 목표 | 상태 | 메커니즘 |
+|---|---|---|---|
+| 1 | 프로젝트 스코프별 최적 세팅 | ✅ | init triage→스캐폴딩(헤드리스 검증), archetype 인스턴스화, 재조정 루프 |
+| 2 | HITL로 하나씩 승인하며 진행 | ✅(구조) | init/재조정 **propose→approve(AskUserQuestion)→apply**, 전 단계. 승인 일시정지는 인터랙티브 |
+| 3 | 단순질문 제외 전부 오케스트레이터→전문 에이전트 협업→매번 최적 | ✅(구조)/⏳(팀스폰 실측) | always-on orchestrator(§5.4) + Agent Teams + reviewer/critic 게이트 + agent-memory |
+| 4 | 산출물이 정해진 경로에 저장 | ✅ | `{{OUTPUT_DIR}}` 기본 `docs/agent-orchestra/{prd,design,review,reports}/`, 에이전트가 거기 저장 (헤드리스 검증) |
+| 5 | 외부 지식 폴더 참조 | ✅ | `.claude/knowledge/index.md`를 CLAUDE.md `@import`(상시 로드) + `.claude/rules/`. native 로드 (헤드리스 검증) |
+
+게이트 강제(목표 3의 "매번 최적"): **native 팀 훅** `TaskCompleted`(비-리뷰 작업 완료 차단)·
+`TeammateIdle`(리뷰어/감시자 idle 차단) + `Stop` 백스톱 + `PreToolUse` 위험명령 가드. 전부 단위 테스트 통과.
+
+⏳ 유일한 인터랙티브 미검증: 메인 스레드 오케스트레이터가 실제로 Agent Team을 리드로 스폰하는지(§5.4),
+HITL 승인 일시정지 UX. cmux 실측으로 확정.
 
 ## 부록 A. 핵심 참고 문서
 
