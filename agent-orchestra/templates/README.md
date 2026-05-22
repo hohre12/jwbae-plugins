@@ -25,6 +25,7 @@ must not be auto-loaded as live agents.
 | `{{LINT_CMD}}` | Lint/format command |
 | `{{CONVENTIONS}}` | One-line summary of key project conventions |
 | `{{RULES_PATHS}}` | Which `.claude/rules/*.md` apply to this role |
+| `{{OUTPUT_DIR}}` | Project output dir for generated docs (default `docs/agent-orchestra`) — used by architect/CLAUDE.md |
 
 See `DESIGN.md` §2.2, §2.3, §2.7.
 

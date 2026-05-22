@@ -53,6 +53,9 @@ Fix: <a specific, concrete change — not "consider improving">
 End with a one-line verdict: `APPROVE` only if there are no blockers or majors;
 otherwise `CHANGES REQUIRED` with the blocking items listed.
 
+If you write a standalone review report (rather than just inline findings), save it under the
+project's review output dir (see CLAUDE.md "Output artifacts", default `docs/agent-orchestra/review/`).
+
 ## Memory protocol (`memory: project`)
 
 You have a persistent project memory at `.claude/agent-memory/reviewer/MEMORY.md`.

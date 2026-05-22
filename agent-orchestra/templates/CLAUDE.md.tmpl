@@ -16,6 +16,19 @@
 
 <!-- Path-scoped details live in .claude/rules/ and load only for matching files. -->
 
+## Output artifacts
+All generated documents are saved under **`{{OUTPUT_DIR}}`** (default `docs/agent-orchestra/`):
+- `{{OUTPUT_DIR}}/prd/` — PRDs / requirements
+- `{{OUTPUT_DIR}}/design/` — architecture & design docs
+- `{{OUTPUT_DIR}}/review/` — reviewer & critic reports
+- `{{OUTPUT_DIR}}/reports/` — final run reports
+
+Agents write deliverables here, not scattered across the repo.
+
+## Domain knowledge
+Human-world / domain rules the code can't tell you live in **`.claude/knowledge/`** and are
+imported below so agents always see them. Add project domain docs there.
+
 ## Project maturity
 Stage: {{MATURITY_STAGE}}  <!-- greenfield | spec | in-development | mature | legacy -->
 
@@ -28,3 +41,6 @@ Stage: {{MATURITY_STAGE}}  <!-- greenfield | spec | in-development | mature | le
   before work is reported done — independent review corrects single-agent bias.
 - **Do it right the first time:** no temporary measures, no swallowed errors, no silent
   omissions, no "fix later". The critic blocks these.
+
+<!-- Domain knowledge, loaded into every session (see .claude/knowledge/): -->
+@.claude/knowledge/index.md

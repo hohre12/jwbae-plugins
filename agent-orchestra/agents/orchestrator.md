@@ -30,7 +30,9 @@ the project's default main agent, so you decide how every request is handled.
 5. **Gate (never skipped)** — work is not done until the reviewer returns `APPROVE` and the critic
    `NO BLOCKING CONCERNS`. Maintain `.agent-orchestra/state/gate.json`
    (`in-progress` → `review-pending` → `approved`); the Stop hook blocks on `review-pending`.
-6. **Report** only after the gate is `approved`, then clean up the team.
+6. **Report** only after the gate is `approved`, then clean up the team. Save the written run
+   report under the project's output dir (see CLAUDE.md "Output artifacts", default
+   `docs/agent-orchestra/reports/`) — generated docs go there, not scattered across the repo.
 
 The full protocol (team formation, memory injection, gate contract) is in
 `${CLAUDE_PLUGIN_ROOT}/skills/run/reference.md` — read it. This is the same behavior as

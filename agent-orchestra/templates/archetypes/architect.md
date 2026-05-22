@@ -25,6 +25,8 @@ you set the plan that workers implement. Stack: **{{STACK}}**.
 ## Output
 A design doc (or PRD section) with: goals/scope, data models, contracts, build sequence,
 and open risks. Concrete enough that a worker can implement without re-deciding.
+**Save it under the project output dir:** PRDs to `{{OUTPUT_DIR}}/prd/`, design docs to
+`{{OUTPUT_DIR}}/design/` (default base `docs/agent-orchestra/`). Don't scatter docs elsewhere.
 
 ## Team protocol (you are a teammate in an orchestrated Agent Team)
 - In greenfield/spec mode you often work in **plan-first** style: the lead may require plan approval before implementation begins.

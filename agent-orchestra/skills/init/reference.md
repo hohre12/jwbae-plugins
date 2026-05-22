@@ -28,7 +28,14 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{reviewer,critic}/MEMORY.md` | (create empty seed) | One-line seed; the agents fill these over time |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
+| **output dir** | (create dirs) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/` with `prd/ design/ review/ reports/`. Fill `{{OUTPUT_DIR}}` in CLAUDE.md. Goal 4 |
+| **`.claude/knowledge/`** | (create + `index.md` + README) | Domain/business rules folder. Create `index.md` (seed, imported by CLAUDE.md `@import`) + `README.md` (usage). Goal 5 |
 | `output-styles/` | — | Usually **N/A** (user-global preference). Create only if a project-specific report tone is wanted |
+
+Output dir = where all generated docs go (PRD/design/review/reports). `{{OUTPUT_DIR}}` is configurable
+per project; agents save deliverables there (not scattered). Knowledge folder = native-loaded domain
+context: `.claude/knowledge/index.md` is `@import`ed by `CLAUDE.md` so it's in every session; always-apply
+domain *rules* can also go in `.claude/rules/` (auto-loaded). See § Domain knowledge below.
 
 The `"agent": "orchestrator"` line makes the orchestrator the project's **default main thread**
 (always-on, project-scoped) — so the user never has to type `/agent-orchestra:run`; every
