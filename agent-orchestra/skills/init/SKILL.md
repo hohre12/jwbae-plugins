@@ -40,22 +40,32 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 4. **Not a git repo?** Propose `git init` (worktree isolation + commits need it). Proceed
    only with the user's OK; if declined, note that workers run in-process and must split files.
 
-5. **Scaffold the standard slots** by walking the checklist in `reference.md` § Standard-slot
-   checklist. For each slot: create it from the matching `${CLAUDE_PLUGIN_ROOT}/templates/`
-   file with placeholders filled from triage, **or** record an explicit, reasoned N/A.
-   Never silently skip a slot. Instantiate the worker archetypes the project needs
-   (`reference.md` § Archetype instantiation).
+5. **Propose the plan — HITL gate (ALL stages, not just greenfield).** Before writing anything,
+   present the full scaffolding plan as a table by walking `reference.md` § Standard-slot checklist:
+   each slot → *create* (from which template + key placeholder values) or *reasoned N/A*; which
+   worker archetypes to instantiate; which rules; output dir; knowledge folder. Then **stop and get
+   explicit approval** with `AskUserQuestion` (options: "approve all" / "let me adjust" / "just
+   proceed"). **Write no files before approval.** The user approves one consolidated plan, not
+   nothing — so make the proposal complete and specific.
 
-6. **Reconcile (re-run):** if `.claude/` already exists, diff current repo state against the
+6. **Apply the approved plan.** Create each approved slot from the matching
+   `${CLAUDE_PLUGIN_ROOT}/templates/` file with placeholders filled from triage; instantiate the
+   approved worker archetypes (`reference.md` § Archetype instantiation). Never silently skip a slot.
+   If the user asked to adjust, revise the plan and re-confirm before applying.
+
+7. **Reconcile (re-run):** if `.claude/` already exists, diff current repo state against the
    recorded maturity/roster in `CLAUDE.md` and **propose** changes (add/retire workers, stage
-   change). Apply only after the user approves (approval gate). Never auto-apply.
+   change) the same way — propose → approve → apply. Never auto-apply.
 
-7. **Hand off.** Print what you created/changed and the explicit N/As. Remind the user that
+8. **Hand off.** Print what you created/changed and the explicit N/As. Remind the user that
    the Agent Teams env var takes effect next session, so they should relaunch (`cgo`) before
-   `/agent-orchestra:run`.
+   substantive work.
 
 ## Hard rules
 
+- **Propose → approve → apply for every stage.** Never write `.claude/` files before the user
+  approves the plan (greenfield approves the PRD/plan; brownfield/mature/legacy approve the
+  scaffolding plan table). "Just proceed" is the only way to skip the per-item review.
 - Nothing forgotten: every standard slot is created or explicitly marked N/A with a reason.
 - Secrets (Redmine/Supabase keys) go in `.mcp.json` as `${ENV_VAR}` references, never inline.
 - Greenfield: code only after explicit plan approval.
