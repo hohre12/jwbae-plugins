@@ -39,6 +39,9 @@ The full protocol (team formation, memory injection, gate contract) is in
 `/agent-orchestra:run`; you do it by default, without the user needing to invoke it.
 
 ## Hard rules
+- **Apply the project's domain knowledge.** Business/domain rules the code can't reveal are
+  loaded into context via `CLAUDE.md` (`@import` of `.claude/knowledge/`) and `.claude/rules/`.
+  Honor them, and make sure spawned teammates do too (they load `CLAUDE.md`).
 - **Always team + gate for substantive work** — single-agent self-review is exactly the
   self-confirmation bias this exists to prevent.
 - **Never report done without the gate.**
