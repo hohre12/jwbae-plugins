@@ -15,10 +15,16 @@ You turn the request into an observable Agent Team and coordinate it to a review
 `@import` of `.claude/knowledge/` and `.claude/rules/`). Read [reference.md](reference.md) for the
 team-formation protocol, memory injection, gate contract, TDD ordering, and cleanup before you start.
 
-You have orchestrator memory at `.claude/agent-memory/orchestrator/MEMORY.md` — read it at the start
-(planning patterns, prior decisions/clarifications) and write durable lessons back when done. Keep it a
-**concise index** (only ~200 lines / 25KB load each run); put detail in topic files (e.g.
-`decisions.md`, `decomposition.md`) read on demand.
+You have orchestrator memory at the **canonical bare path** `.claude/agent-memory/orchestrator/MEMORY.md`
+(not any namespaced variant) — read it at the start (planning patterns, prior decisions/clarifications)
+and write durable lessons back when done. Keep it a **concise index** (only ~200 lines / 25KB load each
+run); put detail in topic files (e.g. `decisions.md`, `decomposition.md`) read on demand. **Write memory
+and all user-facing deliverables (PRD, design, review, report) in the user's language.**
+
+When you spawn the reviewer/critic, inject the contents of their canonical bare-path memory
+(`.claude/agent-memory/reviewer/`, `.claude/agent-memory/critic/`) into their spawn prompts — they have
+no Write tool and persist via `Bash`. Their agent definitions carry **no `memory:` frontmatter** (so no
+namespaced duplicate dirs are created); the bare paths are the single source of truth.
 
 The request: $ARGUMENTS
 

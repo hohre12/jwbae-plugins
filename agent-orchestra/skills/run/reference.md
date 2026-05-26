@@ -22,13 +22,16 @@ Detail for `/agent-orchestra:run`.
 
 ## Memory injection (standing reviewer & critic)
 
-Native `memory: project` may not auto-load when an agent runs as a *teammate*, so inject it yourself:
+reviewer/critic carry **no `memory: project` frontmatter** — memory is managed manually at the
+**canonical bare paths** `.claude/agent-memory/{reviewer,critic}/` (no namespaced `agent-orchestra-*`
+dirs). You inject and they persist via `Bash`:
 
-1. Before spawning the reviewer: `Read .claude/agent-memory/reviewer/MEMORY.md` and paste its
-   content into the reviewer's spawn prompt under a "Your accumulated memory" heading.
+1. Before spawning the reviewer: `Read .claude/agent-memory/reviewer/MEMORY.md` (+ its topic files)
+   and paste the content into the reviewer's spawn prompt under a "Your accumulated memory" heading.
 2. Same for the critic with `.claude/agent-memory/critic/MEMORY.md`.
-3. Tell each in the spawn prompt: when your task is done, append durable, distilled lessons to
-   your own `MEMORY.md` (consolidate, don't dump; keep it the index).
+3. Tell each: when done, **append** durable, distilled lessons via `Bash` to its own `MEMORY.md`/topic
+   files at the bare path (they have no Write tool). Keep `MEMORY.md` a concise index. **Write in the
+   user's language.**
 
 If a memory file doesn't exist yet, note that and let the agent create it on first write.
 

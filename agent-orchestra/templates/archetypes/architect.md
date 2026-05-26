@@ -27,7 +27,8 @@ A design doc (or PRD section) with: goals/scope, data models, contracts, build s
 and open risks. Concrete enough that a worker can implement without re-deciding.
 **Save paths (proportional — only for substantial work):** the *project-level* PRD/architecture →
 `docs/PRD.md` (tool-neutral). A *feature-level* design/PRD → `{{OUTPUT_DIR}}/<feature-slug>/design.md`
-(or `prd.md`). Small changes need no design doc. Don't scatter docs elsewhere.
+(or `prd.md`). Small changes need no design doc. Don't scatter docs elsewhere. **Write these documents
+in the user's language.**
 
 ## Team protocol (you are a teammate in an orchestrated Agent Team)
 - In greenfield/spec mode you often work in **plan-first** style: the lead may require plan approval before implementation begins.

@@ -240,22 +240,23 @@ your-project/
 
 ---
 
-## 3. 연속성 — 네이티브 agent-memory
+## 3. 연속성 — 수동 관리 agent-memory (bare path 정본)
 
-- 리뷰어/감시자 정의에 **`memory: project`** → `.claude/agent-memory/<name>/MEMORY.md` 자동 생성.
-  - `memory: project` → 레포 커밋, 팀 공유 (**기본값, 메모리는 항상 프로젝트 스코프 고정**)
-  - (`local`/`user` 옵션 존재하나 본 설계에서는 미사용)
-- 서브에이전트는 매 작업 시작 시 MEMORY.md를 읽고, 끝에 배운 걸 써넣음(자동, 첫 200줄/25KB 주입).
+- 메모리 정본 = `.claude/agent-memory/{orchestrator,reviewer,critic}/`(레포 커밋·공유). **bare path가 정본.**
+- reviewer/critic 정의엔 **`memory:` frontmatter 없음** — 네이티브가 `agent-orchestra-*` 네임스페이스 빈 폴더를
+  만드는 것을 막기 위함(v1.4 Q4 수정). 메모리는 전적으로 **수동 관리**.
+- `MEMORY.md`는 간결 인덱스(첫 200줄/25KB만 로드), 상세는 토픽 파일 on-demand.
 
-### 3.1 팀원 메모리 주입 — **[확정: 항상 수동 주입(belt-and-suspenders)]**
+### 3.1 팀원 메모리 주입·기록 — **[확정: 수동, bare path]**
 
-서브에이전트 정의를 *팀원*으로 쓸 때 `memory:` 자동 주입 여부는 문서가 침묵한다(서브에이전트
-기준으로만 보장). **검증 결과에 의존하지 않고**, 리드가 항상 명시적으로 처리한다:
+1. 리드(`/run`)가 reviewer/critic 스폰 *직전*, `agent-memory/{name}/MEMORY.md`(+토픽)를 읽어 **스폰 프롬프트에 주입**.
+2. reviewer/critic은 **Write 도구가 없으므로 `Bash`(`>>`)로** bare path에 write-back(인덱스 유지).
+3. orchestrator 메모리도 `/run`이 bare path에서 직접 read/write.
+→ 네이티브 네임스페이스 폴더 미사용(단일 진실). 산출물·메모리는 **사용자 언어**로 기록(지침은 영어).
 
-1. 리뷰어/감시자 팀원 스폰 *직전*, 리드가 `agent-memory/<name>/MEMORY.md`를 읽어 **스폰 프롬프트에 주입**.
-2. 리뷰/비평 종료 시 교훈을 그 파일에 **써넣도록 지시**.
-
-→ 네이티브 `memory:`가 팀원에도 동작하면 *중복 안전망*이 될 뿐, 설계는 거기 의존하지 않는다.
+#### Q4/Q5 수정 (v1.4)
+- **Q4**: reviewer/critic `memory:` 제거 → `agent-orchestra-*` 빈 폴더 제거, bare path 단일화.
+- **Q5**: 산출물(PRD/design/review/report)·메모리는 사용자 언어, 지침(.md·CLAUDE.md·skills)은 영어.
 
 ---
 

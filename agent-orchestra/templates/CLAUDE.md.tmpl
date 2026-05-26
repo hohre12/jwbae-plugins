@@ -37,6 +37,8 @@ Stage: {{MATURITY_STAGE}}  <!-- greenfield | spec | in-development | mature | le
 
 ## Working agreement
 - **Communicate with the user in their language** (mirror the language they write in).
+- **Write all generated documents in the user's language** — PRD, design, review, run reports, and
+  agent memory. (The instruction files under `.claude/` and the plugin itself stay in English.)
 - **Substantive code / design / analysis work → use `/agent-orchestra:run`** — it runs the work as
   an observable Agent Team with an independent reviewer + adversarial critic gate (bias correction).
   Quick questions and one-line edits: just answer/do them directly (plain Claude — Orchestra is not always-on).
