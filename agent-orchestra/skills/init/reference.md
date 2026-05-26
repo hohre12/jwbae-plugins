@@ -30,6 +30,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. gitignored |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
+| `docs/agent-orchestra/INDEX.md` | `templates/INDEX.md.tmpl` | **Onboarding timeline** — `/run` appends one row per substantial run (date · feature · what/why · links). A newcomer reads this for project history |
 | **`.claude/knowledge/`** | (create + `index.md` + README) | Domain/business rules folder. Create `index.md` (seed, imported by CLAUDE.md `@import`) + `README.md` (usage). Goal 5 |
 | `output-styles/` | — | Usually **N/A** (user-global preference). Create only if a project-specific report tone is wanted |
 

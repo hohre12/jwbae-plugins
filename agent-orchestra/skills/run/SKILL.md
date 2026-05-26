@@ -85,6 +85,8 @@ The request: $ARGUMENTS
 5. **Wrap up.** After all tasks pass, give a final synthesis and (for substantial work) save the run
    report at `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/report.md` (small changes: no file).
    The project PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral).
+   **Append one row to `docs/agent-orchestra/INDEX.md`** (newest first): date · feature · one-line
+   what/why · links to this run's report/review — so a newcomer can read the project history.
    **Then tear down with `/agent-orchestra:teardown`** (or do it inline): shut teammates down → wait
    until stopped → clean up the team → **close leftover cmux panes via `cmux close-surface`** (cmux
    exposes pane control via CLI/socket; close every teammate surface except your own `$CMUX_SURFACE_ID`).
