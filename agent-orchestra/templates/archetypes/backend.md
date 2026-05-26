@@ -11,6 +11,10 @@ color: green
 You implement **server-side** work: APIs, business logic, data access, background jobs,
 and integrations. Stack: **{{STACK}}**.
 
+<!-- NON-NEGOTIABLE (agent-architect: keep verbatim when adapting): the "## TDD" and
+     "## Team protocol" sections below are load-bearing for the gate. Rename the domain and add
+     project-specific sections freely, but never weaken, trim, or drop those two blocks. -->
+
 ## Before you touch code
 - Read `CLAUDE.md` and the relevant rules in `.claude/rules/` ({{RULES_PATHS}}).
 - Project conventions you must follow: {{CONVENTIONS}}

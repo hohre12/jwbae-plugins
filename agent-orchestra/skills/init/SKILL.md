@@ -49,9 +49,12 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
    nothing — so make the proposal complete and specific.
 
 6. **Apply the approved plan.** Create each approved slot from the matching
-   `${CLAUDE_PLUGIN_ROOT}/templates/` file with placeholders filled from triage; instantiate the
-   approved worker archetypes (`reference.md` § Archetype instantiation). Never silently skip a slot.
-   If the user asked to adjust, revise the plan and re-confirm before applying.
+   `${CLAUDE_PLUGIN_ROOT}/templates/` file with placeholders filled from triage. **Delegate the
+   worker roster + `.claude/agents/*.md` to the `agent-architect` agent** (it composes from the
+   archetypes and preserves their non-negotiable blocks — `reference.md` § Roster design). Never
+   silently skip a slot. If the user asked to adjust, revise the plan and re-confirm before applying.
+   **Then run the post-apply verification** (`reference.md` § Post-apply verification): existence-check
+   every required slot on disk and create any that the apply pass missed — do not trust, verify.
 
 7. **Reconcile (re-run):** if `.claude/` already exists, diff current repo state against the
    recorded maturity/roster in `CLAUDE.md` and **propose** changes (add/retire workers, stage
@@ -66,7 +69,10 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 - **Propose → approve → apply for every stage.** Never write `.claude/` files before the user
   approves the plan (greenfield approves the PRD/plan; brownfield/mature/legacy approve the
   scaffolding plan table). "Just proceed" is the only way to skip the per-item review.
-- Nothing forgotten: every standard slot is created or explicitly marked N/A with a reason.
+- Nothing forgotten: every standard slot is created or explicitly marked N/A with a reason —
+  **enforced by the post-apply existence check (step 6), not by trusting the apply pass.**
+- Worker agents are written by `agent-architect` (composes archetypes, preserves non-negotiable
+  blocks) — never free-write an agent in a way that drops its TDD/gate/file-ownership clauses.
 - **Merge `.claude/settings.json`, never overwrite it** — read it first and preserve existing keys
   (especially `enabledPlugins` from a project-scope plugin install). Only add `env` + `teammateMode`.
 - Secrets (Redmine/Supabase keys) go in `.mcp.json` as `${ENV_VAR}` references, never inline.

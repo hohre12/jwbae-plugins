@@ -29,6 +29,23 @@ Single-agent Claude tends to confirm its own work (self-confirmation bias). Agen
 Orchestra runs every task as a team where an independent reviewer and an adversarial
 critic must sign off — bias correction, enforced by hooks, not by asking nicely.
 
+The gate is **objective, not self-reported**: a Stop hook independently re-runs the
+project's `test`/`lint`/`build` (and frontend `e2e`) from `.agent-orchestra/verify.json`,
+so a reviewer "APPROVE" can't pass while checks fail. Frontend work additionally requires
+**Playwright live-browser E2E + screenshot** (generic AI-looking UI is a finding). Every
+substantial run appends to `docs/agent-orchestra/INDEX.md` — an onboarding history a new
+joiner can read.
+
+## Standing agents
+
+The plugin ships three standing agents (not copied per project):
+
+| Agent | Role |
+| --- | --- |
+| `reviewer` (blue) | Independent, cold, result-only production-grade review; runs the tests itself |
+| `critic` (red) | Adversarial — doubts the approach and **proposes better directions** (relayed to you) |
+| `agent-architect` (purple) | Designs the project's worker roster and writes `.claude/agents/*.md` by **composing from quality-floor archetypes** (preserves their non-negotiable TDD/gate/ownership blocks) — tailored roster, no quality drift |
+
 ## Skills (namespaced)
 
 | Command | Purpose |

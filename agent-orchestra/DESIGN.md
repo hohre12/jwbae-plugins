@@ -529,6 +529,34 @@ bolt당 10~26 사람 검증 포인트*의 체크포인트 모델이고, 플러�
 
 ✅ 헤드리스 검증(ao-v14): settings에 `agent` 키 없음, 카테고리 폴더 미생성, agent-memory{orchestrator,reviewer,critic} 생성.
 
+## 16. v0.7 — 객관 게이트 · FE 디자인/E2E · 온보딩 인덱스 · 하이브리드 에이전트 생성
+
+**객관 게이트 (사실 > 의견):** Stop 훅 `verify-gate.py`가 게이트 시점에 `.agent-orchestra/verify.json`의
+`test`/`lint`/`build`(+FE `e2e`)를 **직접 재실행** → 리뷰어 APPROVE가 실패 위에서 통과 불가(센티넬 위조 차단).
+verify.json 없으면 fail-open. init이 트리아지에서 명령을 채워 생성.
+
+**FE 품질:** frontend 아키타입에 `frontend-design` 스킬 + `figma`/`stitch` MCP로 high-end UI(“AI-generic은
+결함”), 그리고 **Playwright 라이브 브라우저 E2E + 스크린샷 필수**(코드 리뷰만으로 FE 게이트 통과 불가, e2e는
+verify.json에 넣어 객관 게이트가 재실행). 리뷰어는 렌더 결과를 판정.
+
+**온보딩 인덱스:** `docs/agent-orchestra/INDEX.md`(`templates/INDEX.md.tmpl`) — init이 시드, `/run`이
+substantial run마다 한 줄(날짜·기능·what/why·산출물 링크) 추가. 신규 합류자가 프로젝트 히스토리를 읽음.
+
+**하이브리드 에이전트 생성 (rigid 템플릿 ↔ free-write 메타 에이전트의 중간):** 근거 — 고정 6 아키타입만
+인스턴스화하면 프로젝트 고유 도메인(payments/recsys/realtime)을 놓치고, 반대로 메타 에이전트가 매번
+**통째로 생성**하면 LLM 드리프트로 게이트 필수 절(TDD 순서·리뷰어 생존·파일 소유권·임시처리 금지)이 누락될 수
+있음. → 표준 에이전트 **`agent-architect`**(opus)가 PRD/코드베이스로 도메인 분석·right-size(3개 미만 병합/8개
+초과 분리)·고유 specialist 추가를 하되, **반드시 아키타입에서 조립하고 NON-NEGOTIABLE 블록을 verbatim 보존**.
+아키타입에 보존 마커 주석 추가. init/run은 로스터 작성을 agent-architect에 위임(불가 시 동일 규칙 폴백).
+
+**누락 방지 (강제, not 부탁):** init에 **post-apply 존재 검증** 단계 추가 — apply가 슬롯을 만들었다고 믿지 말고
+디스크에서 필수 슬롯(CLAUDE.md/settings/agents/agent-memory 4종/verify.json/INDEX.md/knowledge)을 실제로
+확인하고, 누락분은 hand-off 전에 생성. N/A는 승인된 계획에 명시된 것만 허용.
+
+⚠️ 검증 노트: 마켓플레이스 소스가 `./agent-orchestra`(상대경로 = 마켓플레이스 **클론** 기준)이라, 로컬 커밋은
+`git push` + 클론 갱신 전까지 새 프로젝트 설치에 반영되지 않음. v0.7 init의 전체 슬롯 생성 검증은 push 후
+마켓플레이스 클론을 최신화한 뒤 수행해야 유효(이전 ao-v07 누락은 LLM 스킵이 아니라 v0.6.0 클론 설치였음).
+
 ## 부록 A. 핵심 참고 문서
 
 - Agent Teams: https://code.claude.com/docs/en/agent-teams

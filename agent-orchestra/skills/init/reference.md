@@ -26,7 +26,8 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.claude/settings.json` | **MERGE (don't overwrite)** | Read existing first and **preserve keys like `enabledPlugins`** (a project-scope plugin install lives here!). Add `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:"1"` + `teammateMode:"tmux"`. **No `agent` key** (invoked, not always-on) |
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
-| `.claude/agent-memory/{orchestrator,reviewer,critic}/MEMORY.md` | (create empty seed) | **Bare paths = canonical** (reviewer/critic carry no `memory:` frontmatter → no namespaced `agent-orchestra-*` dirs). Concise index seed; `/run` + agents fill via Bash over time. Committed & shared |
+| `.claude/agent-memory/{orchestrator,reviewer,critic,agent-architect}/MEMORY.md` | (create empty seed) | **Bare paths = canonical** (reviewer/critic/agent-architect carry no `memory:` frontmatter → no namespaced `agent-orchestra-*` dirs). Concise index seed; `/run` + agents fill via Bash over time. Committed & shared |
+| `.claude/agents/<domain>.md` | **`agent-architect`** (composes archetypes) | Roster design is delegated — see § Roster design below. Not plain substitution |
 | `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. gitignored |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
@@ -73,21 +74,51 @@ must be loadable by every agent. Use **native loading**, not a bare folder + cus
   section, so init just creates the folder + seed files. Agents then see this context natively;
   no per-agent "go read the folder" wiring is required.
 
-## Archetype instantiation
+## Roster design & agent files — delegate to `agent-architect`
 
-For each worker role the project needs (from the 6 in `${CLAUDE_PLUGIN_ROOT}/templates/archetypes/`:
-backend, frontend, test, explorer, architect, devops):
+Writing the worker roster is **not** plain placeholder substitution — it's a design step
+(which domains, how many agents, where to split/merge, which project-specific specialists).
+Delegate it to the standing **`agent-architect`** agent (plugin-provided, hybrid: it composes
+from the archetypes and **preserves their non-negotiable blocks verbatim**, so quality never
+drifts while the roster gets tailored to this project).
 
-1. Read the archetype file.
-2. Substitute placeholders from triage:
-   `{{PROJECT_NAME}}`, `{{STACK}}`, `{{BUILD_CMD}}`, `{{TEST_CMD}}`, `{{LINT_CMD}}`,
-   `{{CONVENTIONS}}`, `{{RULES_PATHS}}`.
-3. Write the filled result to `.claude/agents/<role>.md`.
+- During init, hand `agent-architect` the triage result + `CLAUDE.md` values and have it
+  propose the roster (agent · derived-from archetype · domain evidence · why) for **your/the
+  user's approval**, then write the approved `.claude/agents/<domain>.md` files. It self-verifies
+  each file still contains its non-negotiable markers before handing back.
+- The 6 archetypes (`${CLAUDE_PLUGIN_ROOT}/templates/archetypes/`: backend, frontend, test,
+  explorer, architect, devops) are the **quality floor / building blocks**, not the final roster.
+  A backend-only API may yield `backend` + `test`; a greenfield app `architect` + `explorer`; a
+  project with a distinct domain (payments, recsys, realtime-sync) gets a tailored specialist
+  derived from the nearest archetype. Don't create roles the project has no use for.
+- The standing `reviewer`, `critic`, and `agent-architect` itself come from the plugin and are
+  **not** copied per project.
+- *Fallback:* if delegating isn't possible, do the same yourself — read the archetype, substitute
+  `{{PROJECT_NAME}}/{{STACK}}/{{BUILD_CMD}}/{{TEST_CMD}}/{{LINT_CMD}}/{{CONVENTIONS}}/{{RULES_PATHS}}`,
+  keep the non-negotiable blocks verbatim, write to `.claude/agents/<domain>.md`.
 
-Pick roles by stage and project shape — e.g. a backend-only API project may need only
-`backend` + `test`; a greenfield app may start with `architect` + `explorer`. Don't
-instantiate roles the project has no use for. The standing `reviewer` and `critic` come
-from the plugin and are **not** copied per project.
+## Post-apply verification (nothing forgotten — enforce, don't trust)
+
+After applying, **verify every required slot actually exists on disk** — do not trust that the
+apply step created them (LLM passes silently skip slots). Run a concrete existence check and
+**create any missing slot before handing off**:
+
+```
+test -f CLAUDE.md
+test -f .claude/settings.json
+test -d .claude/agents && ls .claude/agents/*.md
+test -f .claude/agent-memory/orchestrator/MEMORY.md
+test -f .claude/agent-memory/reviewer/MEMORY.md
+test -f .claude/agent-memory/critic/MEMORY.md
+test -f .claude/agent-memory/agent-architect/MEMORY.md
+test -f .agent-orchestra/verify.json
+test -f docs/agent-orchestra/INDEX.md
+test -f .claude/knowledge/index.md
+test -f .claude/knowledge/README.md
+```
+
+Any slot that is intentionally N/A must have been declared so in the approved plan; everything
+else must exist. Report the final list (created / N/A-with-reason) — a slot that is neither is a bug.
 
 ## Greenfield interview (standard depth)
 

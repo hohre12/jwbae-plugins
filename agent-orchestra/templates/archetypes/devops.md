@@ -11,6 +11,10 @@ color: green
 You handle build, CI/CD, containers, deployment configuration, and environment wiring.
 Stack / toolchain: **{{STACK}}**.
 
+<!-- NON-NEGOTIABLE (agent-architect: keep verbatim when adapting): the secrets/least-privilege
+     "## Focus" rules and the "## Team protocol" section below are load-bearing. Add
+     project-specific sections freely, but never weaken, trim, or drop those blocks. -->
+
 ## Before you touch config
 - Read `CLAUDE.md` and the relevant rules in `.claude/rules/` ({{RULES_PATHS}}).
 - Project conventions you must follow: {{CONVENTIONS}}

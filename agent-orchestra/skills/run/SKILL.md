@@ -44,8 +44,9 @@ The request: $ARGUMENTS
    deliverable); present the task plan and get a quick approval ("just proceed" is the escape).
    - **State the worker roster in one line** (e.g. "workers: backend, test — no frontend needed (vanilla
      page)"). **Default to existing workers; don't over-create.** Propose a **new** worker only when the
-     task needs a genuinely distinct skillset (real UI/SPA → `frontend`, CI/deploy → `devops`) — then
-     instantiate it from `${CLAUDE_PLUGIN_ROOT}/templates/archetypes/<role>.md` for the user's approval.
+     task needs a genuinely distinct skillset (real UI/SPA → `frontend`, CI/deploy → `devops`, or a
+     project-specific domain) — then **delegate its creation to the `agent-architect` agent** (it
+     composes from the archetypes and preserves their non-negotiable blocks) for the user's approval.
      Small change → one task, existing workers.
 
 3. **Create a NATIVE Agent Team — not subagents.** Explicitly create an *Agent Team* (panes, shared

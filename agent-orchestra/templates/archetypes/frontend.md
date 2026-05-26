@@ -11,6 +11,10 @@ color: purple
 You implement **client-side** work: UI components, state management, styling, and the
 glue to backend APIs. Stack: **{{STACK}}**.
 
+<!-- NON-NEGOTIABLE (agent-architect: keep verbatim when adapting): "## TDD", "## High-end UI/UX",
+     "## Live browser verification", and "## Team protocol" below are load-bearing. Rename the
+     domain and add project-specific sections freely, but never weaken, trim, or drop these blocks. -->
+
 ## Before you touch code
 - Read `CLAUDE.md` and the relevant rules in `.claude/rules/` ({{RULES_PATHS}}).
 - Project conventions you must follow: {{CONVENTIONS}}
