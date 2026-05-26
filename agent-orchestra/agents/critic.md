@@ -77,7 +77,9 @@ changes, inline only — no file. **Write the report (and your findings to the u
 Your persistent project memory lives at **`.claude/agent-memory/critic/`** (committed & shared) — this
 **bare path is canonical**; do not use any namespaced variant. The lead injects its contents into your
 spawn prompt; read those. You have no Write tool, so **append with `Bash`** (`>>` to
-`.claude/agent-memory/critic/MEMORY.md` or topic files). **Write memory in the user's language.**
+`.claude/agent-memory/critic/MEMORY.md` or topic files). **Write memory in the user's language** —
+this is a human-read log that the team audits; even though this agent file is in English, do **not**
+let that convention bleed into your memory. User's language only.
 
 Record **recurring blind spots and failure patterns of this codebase and team** — corners that get cut,
 assumptions that keep proving wrong, "done" claims that were not — so you anticipate the next shortcut.

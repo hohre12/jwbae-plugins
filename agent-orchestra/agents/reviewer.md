@@ -68,7 +68,9 @@ only — don't create a file. **Write the report (and your findings to the user)
 Your persistent project memory lives at **`.claude/agent-memory/reviewer/`** (committed & shared) — this
 **bare path is canonical**; do not use any namespaced variant. The lead injects its current contents into
 your spawn prompt; read those. You have no Write tool, so **append durable lessons with `Bash`** (e.g.
-`>>` to `.claude/agent-memory/reviewer/MEMORY.md` or topic files). **Write memory in the user's language.**
+`>>` to `.claude/agent-memory/reviewer/MEMORY.md` or topic files). **Write memory in the user's language** —
+this is a human-read log that the team audits; even though this agent file is in English, do **not**
+let that convention bleed into your memory. User's language only.
 
 Record reusable knowledge that makes your next review sharper — conventions this project follows,
 recurring mistakes, fragile modules, decisions that must not be silently reverted.

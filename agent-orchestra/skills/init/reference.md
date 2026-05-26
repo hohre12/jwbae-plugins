@@ -42,6 +42,12 @@ review, no files. Knowledge folder = native-loaded domain
 context: `.claude/knowledge/index.md` is `@import`ed by `CLAUDE.md` so it's in every session; always-apply
 domain *rules* can also go in `.claude/rules/` (auto-loaded). See § Domain knowledge below.
 
+**Language of seeds (split by reader, not folder):** seed the **human-read** artifacts in the user's
+language — `.claude/agent-memory/*/MEMORY.md`, `.claude/knowledge/{index,README}.md`,
+`docs/agent-orchestra/INDEX.md`, `docs/PRD.md`. Keep the **model-facing config** in English —
+`CLAUDE.md`, `.claude/agents/*.md`, `.claude/rules/*.md` (and the plugin itself). agent-memory and
+knowledge live under `.claude/` but are read by people, so they are **not** English.
+
 **Invocation model (not always-on):** do **not** set an `agent` key. Agent Orchestra runs only when
 `/agent-orchestra:run` is invoked — explicitly by the user, or auto-invoked by Claude when a request
 is clearly substantive coding work. Outside that, the project behaves as plain Claude (so the user can

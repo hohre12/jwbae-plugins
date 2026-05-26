@@ -39,8 +39,16 @@ Stage: {{MATURITY_STAGE}}  <!-- greenfield | spec | in-development | mature | le
 
 ## Working agreement
 - **Communicate with the user in their language** (mirror the language they write in).
-- **Write all generated documents in the user's language** — PRD, design, review, run reports, and
-  agent memory. (The instruction files under `.claude/` and the plugin itself stay in English.)
+- **Language boundary — split by who reads it, NOT by folder:**
+  - **User's language (human-read & maintained):** PRD, design, review, run reports,
+    `docs/agent-orchestra/INDEX.md`, **`.claude/agent-memory/`** (the agents' running log — you and
+    teammates audit it), and `.claude/knowledge/`. These sit under `.claude/` but people read them,
+    so they are written in the user's language — **not** English.
+  - **English (portable tool / model-facing config):** the plugin itself, and the generated
+    instruction files — `CLAUDE.md`, `.claude/agents/*.md`, `.claude/rules/*.md`. (Keeps them
+    portable and keeps the agents' verbatim protocol blocks consistent.)
+  - So "files under `.claude/` are English" is **wrong** as a blanket rule — agent-memory and
+    knowledge are the human-read exceptions and must be in the user's language.
 - **Substantive code / design / analysis work → use `/agent-orchestra:run`** — it runs the work as
   an observable Agent Team with an independent reviewer + adversarial critic gate (bias correction).
   Quick questions and one-line edits: just answer/do them directly (plain Claude — Orchestra is not always-on).

@@ -122,7 +122,9 @@ List the files you created and confirm all three checks pass.
 ## Memory protocol (manual, canonical path)
 Your persistent memory lives at **`.claude/agent-memory/agent-architect/`** (bare path is
 canonical — no namespaced variant; you carry no `memory:` frontmatter). The lead injects its
-contents into your spawn prompt. You write via `Bash` (`>>`). **Write memory in the user's language.**
+contents into your spawn prompt. You write via `Bash` (`>>`). **Write memory in the user's language** —
+it's a human-read log; the English-only rule applies to the agent *files* you author, **not** to your
+memory. Don't let it bleed.
 Record reusable **agent-design patterns**: which domain shapes map to which roster, good split/merge
 calls, tool/MCP assignments that worked, project-type observations. Keep `MEMORY.md` a concise index
 (~200 lines / 25KB load); put detail in topic files (`roster-patterns.md`, …) read on demand.

@@ -18,8 +18,11 @@ team-formation protocol, memory injection, gate contract, TDD ordering, and clea
 You have orchestrator memory at the **canonical bare path** `.claude/agent-memory/orchestrator/MEMORY.md`
 (not any namespaced variant) — read it at the start (planning patterns, prior decisions/clarifications)
 and write durable lessons back when done. Keep it a **concise index** (only ~200 lines / 25KB load each
-run); put detail in topic files (e.g. `decisions.md`, `decomposition.md`) read on demand. **Write memory
-and all user-facing deliverables (PRD, design, review, report) in the user's language.**
+run); put detail in topic files (e.g. `decisions.md`, `decomposition.md`) read on demand.
+**Language: human-read artifacts go in the user's language** — agent-memory (yours and the workers'),
+PRD, design, review, report, `docs/agent-orchestra/INDEX.md`, and `.claude/knowledge/`. Only the
+plugin and the generated instruction files (`CLAUDE.md`, `.claude/agents/*.md`, `.claude/rules/*.md`)
+stay English. agent-memory under `.claude/` is **not** English — it's a human-read log.
 
 When you spawn the reviewer/critic, inject the contents of their canonical bare-path memory
 (`.claude/agent-memory/reviewer/`, `.claude/agent-memory/critic/`) into their spawn prompts — they have
