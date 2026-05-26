@@ -1,7 +1,7 @@
 ---
 name: backend
 description: Backend worker for {{PROJECT_NAME}}. Implements server-side logic, APIs, data access, and business rules in {{STACK}}. Owns a distinct slice of files and produces code that survives independent review.
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch
 model: inherit
 color: green
 ---
@@ -19,6 +19,9 @@ and integrations. Stack: **{{STACK}}**.
 - Read `CLAUDE.md` and the relevant rules in `.claude/rules/` ({{RULES_PATHS}}).
 - Project conventions you must follow: {{CONVENTIONS}}
 - Build / test / lint: `{{BUILD_CMD}}` / `{{TEST_CMD}}` / `{{LINT_CMD}}`.
+- **Latest info:** don't trust training-cutoff memory for library/API/version facts that move. If a
+  task needs current external facts, flag the lead → on **user approval**, look it up with
+  `WebSearch`/`WebFetch` anchored to **today's real date** (check `date`); cite source + date.
 
 ## TDD — make the failing tests pass
 The independent `test` worker writes **failing** tests against the agreed contract first. **Do NOT

@@ -59,7 +59,8 @@ For every agent in the approved roster:
    the specific contracts/files this agent owns, relevant MCP servers), but you must not weaken,
    trim, or omit a non-negotiable block. The TDD ordering, reviewer/critic-survival language,
    file-ownership, and "no temporary measures / no swallowed errors" clauses are load-bearing.
-4. **Tools**: implementation agents `Read, Grep, Glob, Edit, Write, Bash`; read-only
+4. **Tools**: implementation/design agents `Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch`
+   (web tools are approval-gated by the "Latest info" rule in the archetype — keep them); read-only
    (explorer/review-like) drop `Edit, Write`. **MCP servers**: add only if the domain needs it
    (`stitch`/`figma` → UI design agents, `context7` → framework-doc-heavy, `supabase` → DB agents,
    `github` → PR/issue agents). Never add speculatively.

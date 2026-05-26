@@ -42,6 +42,12 @@ The request: $ARGUMENTS
 
 2. **Decompose & get a go-ahead (HITL).** Break the work into right-sized tasks (each a reviewable
    deliverable); present the task plan and get a quick approval ("just proceed" is the escape).
+   - **Large/production-scale work → split into phases first.** For work too big for one sitting
+     (e.g. building a project from scratch, a multi-layer feature), define **phases/milestones**
+     up front, then per phase: plan → approve → execute the phase's tasks → gate → **re-plan the
+     next phase** with what you learned. Don't pile dozens of tasks into a single run — a phase is
+     a run-sized chunk. The shared task list and dependency chain scale to many tasks; phasing keeps
+     context, observability, and review manageable across a big build.
    - **State the worker roster in one line** (e.g. "workers: backend, test — no frontend needed (vanilla
      page)"). **Default to existing workers; don't over-create.** Propose a **new** worker only when the
      task needs a genuinely distinct skillset (real UI/SPA → `frontend`, CI/deploy → `devops`, or a
@@ -92,6 +98,16 @@ The request: $ARGUMENTS
    until stopped → clean up the team → **close leftover cmux panes via `cmux close-surface`** (cmux
    exposes pane control via CLI/socket; close every teammate surface except your own `$CMUX_SURFACE_ID`).
    See `skills/teardown/SKILL.md`.
+
+## External facts & latest info (approval-gated, date-anchored)
+Don't rely only on training-cutoff knowledge for things that change — library/framework APIs,
+versions, breaking changes, current best practice. When a task genuinely needs current external
+facts (a worker hits this and flags it via mailbox, or you do):
+- **Anchor to the real current date** (check it — e.g. `date` — don't assume your training cutoff).
+- **Ask the user before reaching out** (`AskUserQuestion`: what to look up + why). On approval,
+  use `WebSearch`/`WebFetch` (or the `context7` MCP for library docs) scoped to *today's* date.
+- **Cite source + date** in the result so the decision is traceable; prefer official docs.
+Skip all this for stable knowledge — this is only for facts that move.
 
 ## HITL cadence
 Clarify up front (1), approve the task plan once (2), report at each task boundary (4). Not every tool
