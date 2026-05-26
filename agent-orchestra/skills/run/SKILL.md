@@ -52,7 +52,11 @@ The request: $ARGUMENTS
      up front, then per phase: plan → approve → execute the phase's tasks → gate → **re-plan the
      next phase** with what you learned. Don't pile dozens of tasks into a single run — a phase is
      a run-sized chunk. The shared task list and dependency chain scale to many tasks; phasing keeps
-     context, observability, and review manageable across a big build.
+     context, observability, and review manageable across a big build. **A phase is a unit of scale,
+     not a reason to serialize:** within a phase, run independent tracks in parallel; put two layers
+     in separate sequential phases only when the later genuinely depends on the earlier's output
+     (e.g. integration/E2E needs the API to exist). If a contract can be agreed up front, prefer one
+     phase with parallel backend ∥ frontend tracks over "backend phase, then frontend phase".
    - **Clean up at each phase boundary** — before starting the next phase, **shut down the teammates
      that finished and close their cmux panes** (teardown steps 1 + 3 mechanics: graceful shutdown
      request, then `cmux close-surface` for each — but **do NOT `TeamDelete`**, the run continues).
@@ -64,6 +68,14 @@ The request: $ARGUMENTS
      project-specific domain) — then **delegate its creation to the `agent-architect` agent** (it
      composes from the archetypes and preserves their non-negotiable blocks) for the user's approval.
      Small change → one task, existing workers.
+   - **Decompose for parallelism (it's why this is a team).** Map the dependency graph, then assign
+     **independent tasks to different teammates to run concurrently** — don't lay everything on a
+     single serial critical path. Sequence only genuine dependencies (TDD test→impl; B truly needs
+     A's output). **Use contract-first to unlock parallel work:** agree the interface/API shape up
+     front, then the layers/repos that meet at it (backend ∥ frontend, repo A ∥ repo B) build
+     **simultaneously** — the consumer codes against the contract (mock if needed) while the provider
+     implements it; they converge at integration/E2E. Serializing whole layers that could build
+     concurrently against a shared contract is a decomposition smell, not a requirement.
 
 3. **Create a NATIVE Agent Team — not subagents.** Explicitly create an *Agent Team* (panes, shared
    task list, mailbox). **Do NOT use the Task/subagent tool** — subagents run in-process ("Running N
@@ -78,7 +90,12 @@ The request: $ARGUMENTS
      literal `OUTPUT_LANGUAGE` from `CLAUDE.md`, e.g. `한국어`) in every spawn prompt, so memory/docs
      are written in it — say the language by name, not "the user's language".
 
-4. **Per-task loop (one task at a time).** Work the shared task list. For each task:
+4. **Work the task list — parallel by default, sequential only where a dependency forces it.** Running
+   independent work **concurrently across teammates is the whole point of an Agent Team** — do not
+   serialize "one task at a time." The only ordering is *real* dependencies: TDD (impl `blockedBy` its
+   test) and genuine data deps (B needs A's output). Independent tasks — and cross-layer/cross-repo
+   tracks that share an agreed contract (step 2) — run **at the same time** on different teammates.
+   For each task (or each batch of parallel tasks):
    - **Agree the contract** (interface/signature/behavior) first.
    - **TDD — test-first via task dependency:** a *test task* (the `test` worker writes **failing**
      tests against the contract) and an *implementation task* that **depends on** it (the impl worker
