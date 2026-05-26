@@ -74,6 +74,11 @@ The request: $ARGUMENTS
      But a **non-blocking improvement/alternative** (a better design, a scope question, "consider X")
      is **not yours to silently adopt or discard** — relay it to the user with a clear decision:
      **adopt now / defer / skip**. Apply only what the user chooses. (Trivial nits: just note them.)
+   - **Frontend work → mandatory Playwright live E2E.** If the task touches UI, the gate is not passed
+     by code review alone: drive the real app in a browser with the `playwright` MCP (navigate, interact,
+     assert) and capture a **screenshot** for the reviewer/critic to judge UX quality (production-grade,
+     not AI-generic). Put the repeatable E2E in `verify.json` `e2e` so the objective gate re-runs it.
+     Frontend workers build UI with the **`frontend-design`** skill (and `figma`/`stitch` if available).
    - **Report at the task boundary (HITL):** when the task passes, tell the user what was done and how
      it was verified, then proceed to the next task.
 

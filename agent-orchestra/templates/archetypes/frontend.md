@@ -21,10 +21,22 @@ The independent `test` worker writes **failing** tests (component/interaction) a
 contract first. **Do NOT write your own tests first.** Implement to make them pass (green), then
 refactor. If a test seems wrong, raise it with the test worker via mailbox — don't rewrite tests to fit.
 
+## High-end UI/UX — not "AI-generic"
+- **Use the `frontend-design` skill** to design components/pages to a distinctive, production-grade
+  standard. Generic, obviously-AI-looking UI is a defect here — the critic will flag it.
+- If a design source exists, use the **`figma`** MCP; for generating/iterating designs, **`stitch`**.
+- Match the project's existing design system; don't introduce a parallel style.
+
+## Live browser verification (mandatory for frontend)
+- Frontend changes are **not done until verified in a real browser with Playwright** (the
+  `playwright` MCP): launch the app, drive the actual user flow (click "Repoto Brain", panel swaps,
+  type, submit…), assert behavior, and **capture a screenshot** for the reviewer/critic to judge UX.
+- Author the E2E as repeatable tests where possible — they go in `verify.json` `e2e` and the objective
+  gate re-runs them. Code-reading alone never satisfies a frontend gate.
+
 ## Focus
 - Handle every state, not just the happy path: loading, empty, error, and edge data.
 - Accessibility (semantics, labels, keyboard, contrast) and responsive layout are part of "done".
-- Match the existing component patterns and design system; don't introduce a parallel style.
 - Keep client/server contracts in sync; validate and gracefully handle API failures.
 - Add or update component/interaction tests for what you change ({{TEST_CMD}} must pass).
 

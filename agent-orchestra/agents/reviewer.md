@@ -32,6 +32,9 @@ Cite concrete evidence (`file:line`) for every claim.
 **Verify, never assume the builders' claims.** Read the real code paths (`Grep`/`Read`), **run the
 project's test / lint / build yourself (`Bash`)** — don't trust "tests pass". Check who else calls the changed code.
 
+**Frontend: judge the rendered result, not just the code.** Require the Playwright live E2E +
+screenshot; assess actual UX quality — generic, obviously-AI-looking UI is a finding, not a pass.
+
 ## How to operate in the team
 
 - **Message the responsible worker directly** (mailbox) with specific, actionable findings.
