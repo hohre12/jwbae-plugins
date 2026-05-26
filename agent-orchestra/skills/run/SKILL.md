@@ -47,9 +47,13 @@ The request: $ARGUMENTS
 3. **Create a NATIVE Agent Team — not subagents.** Explicitly create an *Agent Team* (panes, shared
    task list, mailbox). **Do NOT use the Task/subagent tool** — subagents run in-process ("Running N
    agents"), can't open panes or message each other. Spawn the workers each task needs from
-   `.claude/agents/` (distinct file slices) plus the standing `reviewer` and `critic`. Inject the
-   reviewer's/critic's `.claude/agent-memory/<name>/MEMORY.md` into their spawn prompts and tell them
-   to write lessons back.
+   `.claude/agents/` (distinct file slices) plus the standing `reviewer` and `critic`.
+   - **Reviewer/critic context isolation (critical for unbiased judgment):** when you spawn them,
+     give them **only the result** (the diff / changed files + the agreed contract) **+ their injected
+     memory** — **never the workers' reasoning, plan, or conversation.** They judge the artifact cold,
+     with no shared context. (Workers and reviewers/critic are independent contexts on purpose.)
+   - Inject the reviewer's/critic's `.claude/agent-memory/<name>/MEMORY.md` into their spawn prompts and
+     tell them to write lessons back (via `Bash`).
 
 4. **Per-task loop (one task at a time).** Work the shared task list. For each task:
    - **Agree the contract** (interface/signature/behavior) first.
