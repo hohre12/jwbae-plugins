@@ -120,7 +120,16 @@ Skip all this for stable knowledge — this is only for facts that move.
 Clarify up front (1), approve the task plan once (2), report at each task boundary (4). Not every tool
 call — but never run a large job end-to-end without these checkpoints.
 
+## Waiting for teammates — do NOT poll or schedule wakeups
+While waiting for workers/reviewer/critic, **rely on the native team's notifications** (mailbox /
+`TeammateIdle`) — the team wakes you when a teammate finishes. **Do NOT call `ScheduleWakeup` / set a
+"/loop" fallback, and do NOT spawn background subagents to wait.** A scheduled wakeup **re-invokes
+this skill from scratch and resets the team binding** (empty shared task list, teammates go inactive),
+which corrupts coordination mid-run. Just yield the turn; the team will resume you. (If a Stop hook
+reminds you the gate isn't passed, that's expected — drive the gate to completion, don't schedule a poll.)
+
 ## Hard rules
 - **Native Agent Team, never subagents** (step 3). **Never report done without the gate** (step 4).
 - **TDD always:** independent `test` worker writes failing tests first; implementation makes them pass.
+- **Never `ScheduleWakeup`/background-poll to wait for teammates** — it re-enters this skill and resets the team (above).
 - Do it right the first time: no temporary measures, swallowed errors, or silent omissions — the critic blocks them.
