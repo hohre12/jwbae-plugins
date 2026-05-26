@@ -12,13 +12,14 @@ the full teardown in the right order. **Run it from the lead session, only when 
 
 ## Steps
 
-1. **Shut down every teammate** — ask each teammate to shut down gracefully, and **wait until they
-   have actually stopped** (don't proceed while any is still running). Use the team config
+1. **Shut down every teammate** — send each teammate the native graceful **shutdown request** (let
+   it finish and stop cleanly; do **not** kill its pane to stop it) and **wait until they have
+   actually stopped** (don't proceed while any is still running). Use the team config
    (`~/.claude/teams/{team}/config.json` → `members`) to know who's active.
 
-2. **Clean up the team** — run the native cleanup ("clean up the team"). It removes the shared
-   team resources (`~/.claude/teams/{team}/`, `~/.claude/tasks/{team}/`). It will fail if a teammate
-   is still running, so step 1 must be complete first.
+2. **Delete the team** — call **`TeamDelete`** (the native team cleanup). It removes the shared team
+   resources (`~/.claude/teams/{team}/`, `~/.claude/tasks/{team}/`) and **fails if any teammate is
+   still running**, so step 1 must be complete first.
 
 3. **Close the leftover cmux panes** — under `cmux claude-teams`, each teammate had its own cmux
    surface. Close them with the cmux CLI:
@@ -28,8 +29,11 @@ the full teardown in the right order. **Run it from the lead session, only when 
    - If surface enumeration isn't available, close the surfaces you can identify as teammates'
      (their pane titles are the teammate/agent names, e.g. `agent-orchestra:reviewer`).
 
-4. **Reset the gate sentinel** — set `.agent-orchestra/state/gate.json` to `approved` (or remove it),
-   so a stale `review-pending` doesn't block the next turn.
+4. **Clear the gate sentinel (terminal)** — **remove** `.agent-orchestra/state/gate.json` and
+   `.agent-orchestra/state/verified.json`. The run is over, so the gate should be *gone*, not left
+   at `approved`: a lingering `approved` makes the objective `verify-gate` hook re-run the whole
+   test/lint/build/e2e suite on **every** later Stop (even normal chat). Removing the file is the
+   terminal state — no hook fires until the next run creates a fresh gate.
 
 5. **Report** what was shut down, cleaned, and closed; note anything that couldn't be closed
    automatically so the user can close it by hand.
