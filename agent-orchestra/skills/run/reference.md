@@ -45,16 +45,19 @@ Maintain a sentinel at `.agent-orchestra/state/gate.json` (gitignored). Schema:
 
 - On forming the team for a work request: write `status: "in-progress"`.
 - When workers finish and review begins: set `status: "review-pending"`.
-- Only after reviewer returns `APPROVE` **and** critic returns `NO BLOCKING CONCERNS`:
-  set `status: "approved"`.
+- Only after reviewer returns `APPROVE` **and** critic returns `NO BLOCKING CONCERNS`
+  **and the objective checks are green**: set `status: "approved"`.
 - After reporting and team cleanup: set `approved` (or remove the file).
 
-The sentinel drives three hooks (you don't call them; they run automatically):
+The sentinel drives the hooks (you don't call them; they run automatically):
 - **`TaskCompleted`** — while `review-pending`, a non-review teammate cannot mark a task
   complete (the reviewer/critic completing their own review tasks is allowed).
 - **`TeammateIdle`** — while `review-pending`, the reviewer/critic cannot go idle until they sign off.
-- **`Stop`** (session backstop) — while `review-pending`, the lead's turn is blocked, so you can't
-  report done. It does **not** block while `in-progress` (pause for the user freely) or once `approved`.
+- **`Stop` → `verify-gate`** (objective) — while `review-pending`/`approved`, **re-runs**
+  `.agent-orchestra/verify.json` (`test`/`lint`/`build`/`e2e`) and blocks if any fail. This is the
+  fact-anchor: a sentinel can't be self-`approved` past failing checks, because the hook re-runs them.
+- **`Stop` → `review-gate`** (backstop) — while `review-pending`, blocks the lead's turn so you can't
+  report done. Doesn't block `in-progress` (pause for the user freely) or once `approved` (+ green).
 
 Together these make "close work / report done without review" structurally hard, without trapping
 normal pauses. Keep the sentinel accurate — it is what the hooks read.

@@ -27,6 +27,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{orchestrator,reviewer,critic}/MEMORY.md` | (create empty seed) | **Bare paths = canonical** (reviewer/critic carry no `memory:` frontmatter → no namespaced `agent-orchestra-*` dirs). Concise index seed; `/run` + agents fill via Bash over time. Committed & shared |
+| `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. gitignored |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
 | **`.claude/knowledge/`** | (create + `index.md` + README) | Domain/business rules folder. Create `index.md` (seed, imported by CLAUDE.md `@import`) + `README.md` (usage). Goal 5 |

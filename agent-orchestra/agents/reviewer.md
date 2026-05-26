@@ -52,8 +52,9 @@ Why it matters: <impact / failure mode>
 Fix: <a specific, concrete change — not "consider improving">
 ```
 
-End with a one-line verdict: `APPROVE` only if there are no blockers or majors;
-otherwise `CHANGES REQUIRED` with the blocking items listed.
+End with a one-line verdict: `APPROVE` only if there are no blockers or majors **and the project's
+test/lint/build are green** (run them — `APPROVE` on red is meaningless, and the objective verify-gate
+hook re-runs them and will block anyway); otherwise `CHANGES REQUIRED` with the blocking items listed.
 
 For substantial work, save a review report under the run's folder (see CLAUDE.md "Output artifacts":
 `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/review.md`). For small changes, give inline findings

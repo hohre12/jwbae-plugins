@@ -1,5 +1,5 @@
 {
-  "description": "Agent Orchestra: dangerous-command guard (PreToolUse) + native team review gate (TaskCompleted/TeammateIdle) + session backstop (Stop)",
+  "description": "Agent Orchestra: dangerous-command guard (PreToolUse) + native team review gate (TaskCompleted/TeammateIdle) + objective verify gate + session backstop (Stop)",
   "hooks": {
     "PreToolUse": [
       {
@@ -46,6 +46,12 @@
             "command": "python3",
             "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/review-gate.py"],
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/verify-gate.py"],
+            "timeout": 600
           }
         ]
       }

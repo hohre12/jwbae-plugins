@@ -42,7 +42,11 @@ The request: $ARGUMENTS
 
 2. **Decompose & get a go-ahead (HITL).** Break the work into right-sized tasks (each a reviewable
    deliverable); present the task plan and get a quick approval ("just proceed" is the escape).
-   Light reconcile against `CLAUDE.md`; propose any roster/stage change for approval. Small change → one task.
+   - **State the worker roster in one line** (e.g. "workers: backend, test — no frontend needed (vanilla
+     page)"). **Default to existing workers; don't over-create.** Propose a **new** worker only when the
+     task needs a genuinely distinct skillset (real UI/SPA → `frontend`, CI/deploy → `devops`) — then
+     instantiate it from `${CLAUDE_PLUGIN_ROOT}/templates/archetypes/<role>.md` for the user's approval.
+     Small change → one task, existing workers.
 
 3. **Create a NATIVE Agent Team — not subagents.** Explicitly create an *Agent Team* (panes, shared
    task list, mailbox). **Do NOT use the Task/subagent tool** — subagents run in-process ("Running N
@@ -60,8 +64,11 @@ The request: $ARGUMENTS
    - **TDD — test-first via task dependency:** a *test task* (the `test` worker writes **failing**
      tests against the contract) and an *implementation task* that **depends on** it (the impl worker
      makes them pass, then refactors). red → green → refactor; the implementer does **not** write the tests.
-   - **Gate:** not done until `reviewer` `APPROVE` and `critic` `NO BLOCKING CONCERNS`. Drive the gate
-     sentinel (`reference.md` § Gate contract); hooks enforce it. If blocked, route findings back, fix, re-verify.
+   - **Gate (opinion + facts):** not done until `reviewer` `APPROVE` + `critic` `NO BLOCKING CONCERNS`
+     **and the objective checks pass.** The `verify-gate` hook **independently re-runs** the project's
+     `test`/`lint`/`build` (and `e2e`) from `.agent-orchestra/verify.json` at the gate — so a reviewer
+     `APPROVE` **cannot** pass while tests fail (no faking via the sentinel). Drive the gate sentinel
+     (`reference.md` § Gate contract). If blocked, route findings back, fix, re-verify.
    - **Surface the critic's non-blocking proposals to the user (HITL — don't decide silently).** The
      critic raises doubts *and proposes better directions*. **Blocking** defects → route to the worker.
      But a **non-blocking improvement/alternative** (a better design, a scope question, "consider X")
