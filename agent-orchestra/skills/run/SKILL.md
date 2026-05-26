@@ -53,6 +53,11 @@ The request: $ARGUMENTS
      next phase** with what you learned. Don't pile dozens of tasks into a single run — a phase is
      a run-sized chunk. The shared task list and dependency chain scale to many tasks; phasing keeps
      context, observability, and review manageable across a big build.
+   - **Clean up at each phase boundary** — before starting the next phase, **shut down the teammates
+     that finished and close their cmux panes** (teardown steps 1 + 3 mechanics: graceful shutdown
+     request, then `cmux close-surface` for each — but **do NOT `TeamDelete`**, the run continues).
+     Otherwise dead teammates and empty panes accumulate across phases (they don't auto-close). Keep
+     the lead and any standing reviewer/critic you'll reuse; spawn the next phase's roster fresh.
    - **State the worker roster in one line** (e.g. "workers: backend, test — no frontend needed (vanilla
      page)"). **Default to existing workers; don't over-create.** Propose a **new** worker only when the
      task needs a genuinely distinct skillset (real UI/SPA → `frontend`, CI/deploy → `devops`, or a

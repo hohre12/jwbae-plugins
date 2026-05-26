@@ -38,6 +38,11 @@ the full teardown in the right order. **Run it from the lead session, only when 
 5. **Report** what was shut down, cleaned, and closed; note anything that couldn't be closed
    automatically so the user can close it by hand.
 
+## Phase-boundary cleanup (partial)
+Between phases of a long run (not the end), do **steps 1 + 3 only** for the teammates that finished —
+graceful shutdown + `cmux close-surface` — and **skip step 2 (`TeamDelete`)** and step 4 (gate reset),
+since the run continues. This stops dead teammates and empty panes from accumulating across phases.
+
 ## Safety
 - Never close a pane whose teammate is still working — wait for shutdown first.
 - Never close `$CMUX_SURFACE_ID` (the lead's own pane).
