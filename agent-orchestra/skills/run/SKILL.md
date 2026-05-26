@@ -62,6 +62,11 @@ The request: $ARGUMENTS
      makes them pass, then refactors). red → green → refactor; the implementer does **not** write the tests.
    - **Gate:** not done until `reviewer` `APPROVE` and `critic` `NO BLOCKING CONCERNS`. Drive the gate
      sentinel (`reference.md` § Gate contract); hooks enforce it. If blocked, route findings back, fix, re-verify.
+   - **Surface the critic's non-blocking proposals to the user (HITL — don't decide silently).** The
+     critic raises doubts *and proposes better directions*. **Blocking** defects → route to the worker.
+     But a **non-blocking improvement/alternative** (a better design, a scope question, "consider X")
+     is **not yours to silently adopt or discard** — relay it to the user with a clear decision:
+     **adopt now / defer / skip**. Apply only what the user chooses. (Trivial nits: just note them.)
    - **Report at the task boundary (HITL):** when the task passes, tell the user what was done and how
      it was verified, then proceed to the next task.
 
