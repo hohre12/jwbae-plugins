@@ -36,6 +36,7 @@ critic must sign off — bias correction, enforced by hooks, not by asking nicel
 | `/agent-orchestra:init` | Triage the project and scaffold the standard `.claude/` layout (re-runnable) |
 | `/agent-orchestra:run` | Orchestrate a task as an observable Agent Team |
 | `/agent-orchestra:briefing` | Brief assigned Redmine issues, then start work |
+| `/agent-orchestra:teardown` | Shut down the team and close leftover cmux panes (run when a run is done/stuck) |
 
 ## Develop / test locally
 
