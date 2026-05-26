@@ -29,6 +29,11 @@ def main() -> None:
     except Exception:
         sys.exit(0)
 
+    # Already blocked once this turn → don't loop. Also avoids re-running the whole suite N times
+    # while Claude retries the Stop (it caps and force-overrides anyway). We verify once per turn.
+    if data.get("stop_hook_active"):
+        sys.exit(0)
+
     cwd = data.get("cwd") or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     state_dir = os.path.join(cwd, ".agent-orchestra", "state")
 
