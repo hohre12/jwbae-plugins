@@ -22,7 +22,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 
 | Slot | Source template | Notes |
 | --- | --- | --- |
-| `CLAUDE.md` | `templates/CLAUDE.md.tmpl` | SSOT, <200 lines. Fill stack/commands/conventions/maturity/roster |
+| `CLAUDE.md` | `templates/CLAUDE.md.tmpl` | SSOT, <200 lines. Fill stack/commands/conventions/maturity/roster **and `{{OUTPUT_LANGUAGE}}`** — set it to the **concrete** language the user writes in (e.g. `한국어`, `日本語`, `English`), so downstream agents read a literal language, not the abstract "user's language" (which regresses to English) |
 | `.claude/settings.json` | **MERGE (don't overwrite)** | Read existing first and **preserve keys like `enabledPlugins`** (a project-scope plugin install lives here!). Add `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:"1"` + `teammateMode:"tmux"`. **No `agent` key** (invoked, not always-on) |
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
@@ -42,8 +42,9 @@ review, no files. Knowledge folder = native-loaded domain
 context: `.claude/knowledge/index.md` is `@import`ed by `CLAUDE.md` so it's in every session; always-apply
 domain *rules* can also go in `.claude/rules/` (auto-loaded). See § Domain knowledge below.
 
-**Language of seeds (split by reader, not folder):** seed the **human-read** artifacts in the user's
-language — `.claude/agent-memory/*/MEMORY.md`, `.claude/knowledge/{index,README}.md`,
+**Language of seeds (split by reader, not folder):** seed the **human-read** artifacts in
+**`{{OUTPUT_LANGUAGE}}`** (the concrete language you set in `CLAUDE.md`, e.g. `한국어`) —
+`.claude/agent-memory/*/MEMORY.md`, `.claude/knowledge/{index,README}.md`,
 `docs/agent-orchestra/INDEX.md`, `docs/PRD.md`. Keep the **model-facing config** in English —
 `CLAUDE.md`, `.claude/agents/*.md`, `.claude/rules/*.md` (and the plugin itself). agent-memory and
 knowledge live under `.claude/` but are read by people, so they are **not** English.

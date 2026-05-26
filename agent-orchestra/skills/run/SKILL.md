@@ -19,10 +19,12 @@ You have orchestrator memory at the **canonical bare path** `.claude/agent-memor
 (not any namespaced variant) — read it at the start (planning patterns, prior decisions/clarifications)
 and write durable lessons back when done. Keep it a **concise index** (only ~200 lines / 25KB load each
 run); put detail in topic files (e.g. `decisions.md`, `decomposition.md`) read on demand.
-**Language: human-read artifacts go in the user's language** — agent-memory (yours and the workers'),
-PRD, design, review, report, `docs/agent-orchestra/INDEX.md`, and `.claude/knowledge/`. Only the
-plugin and the generated instruction files (`CLAUDE.md`, `.claude/agents/*.md`, `.claude/rules/*.md`)
-stay English. agent-memory under `.claude/` is **not** English — it's a human-read log.
+**Language: human-read artifacts go in the project's output language** — the **literal value of
+`OUTPUT_LANGUAGE` in `CLAUDE.md`** (e.g. `한국어`), not the abstract phrase "user's language" (which
+regresses to English). This covers agent-memory (yours and the workers'), PRD, design, review, report,
+`docs/agent-orchestra/INDEX.md`, and `.claude/knowledge/`. Only the plugin and the generated
+instruction files (`CLAUDE.md`, `.claude/agents/*.md`, `.claude/rules/*.md`) stay English.
+agent-memory under `.claude/` is **not** English — it's a human-read log.
 
 When you spawn the reviewer/critic, inject the contents of their canonical bare-path memory
 (`.claude/agent-memory/reviewer/`, `.claude/agent-memory/critic/`) into their spawn prompts — they have
@@ -67,7 +69,9 @@ The request: $ARGUMENTS
      memory** — **never the workers' reasoning, plan, or conversation.** They judge the artifact cold,
      with no shared context. (Workers and reviewers/critic are independent contexts on purpose.)
    - Inject the reviewer's/critic's `.claude/agent-memory/<name>/MEMORY.md` into their spawn prompts and
-     tell them to write lessons back (via `Bash`).
+     tell them to write lessons back (via `Bash`). **Also state the concrete output language** (the
+     literal `OUTPUT_LANGUAGE` from `CLAUDE.md`, e.g. `한국어`) in every spawn prompt, so memory/docs
+     are written in it — say the language by name, not "the user's language".
 
 4. **Per-task loop (one task at a time).** Work the shared task list. For each task:
    - **Agree the contract** (interface/signature/behavior) first.
