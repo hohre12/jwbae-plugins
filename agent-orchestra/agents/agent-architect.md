@@ -66,6 +66,39 @@ For every agent in the approved roster:
 5. Write to `.claude/agents/<domain>.md`. Do not give project agents a `memory:` frontmatter key
    unless asked — keep agent-memory on the canonical bare paths the lead injects.
 
+## Language — HARD RULE (do not get this wrong)
+
+**Every agent instruction file you write — the `description` frontmatter AND the entire body — is
+in ENGLISH**, exactly like the archetypes, **regardless of the user's or project's language.** Agent
+definitions under `.claude/` are instructions, and this plugin keeps all instruction files in
+English (portability + reliable model adherence). Do **not** translate or write any part of an agent
+file in the user's language — not the description, not the added project-specific sections, not the
+file-ownership notes. The only places that follow the user's language are **agent-memory** and
+**user-facing documents** (PRD, design, review, reports) — never the agent files themselves. A
+bilingual agent file is a defect: fix it to English before handing off.
+
+## Quality bar — every generated agent must be senior-grade
+
+The point of composing (not free-writing) is **consistent floor**; the point of tailoring is **high
+ceiling**. A structurally-valid but generic agent is **not** good enough. Each agent you write must
+read like a senior engineer's spec for that exact domain on that exact stack:
+
+- **Concrete, not boilerplate.** Replace placeholders with the project's real contracts: the actual
+  files/dirs this agent owns, the real signatures/endpoints/data shapes it works with, the specific
+  conventions and idioms of the project's stack and version (the way a strong standalone agent
+  encodes framework/tooling/perf/a11y/security specifics — but scoped to *this* project's stack).
+- **Real failure modes & edge cases** for the domain (not "handle errors" — *which* errors, *which*
+  boundaries), and what "done" concretely means here.
+- **Explicit scope & file ownership** so workers never collide; name the exact slice and what is
+  off-limits (coordinate via mailbox).
+- **Right depth.** Enough that a worker implements without re-deciding; no filler, no vague advice.
+  If the domain has well-known production patterns (e.g. WCAG specifics for UI, parameterized
+  queries for DB, idempotency for APIs), encode the ones that apply.
+- Keep the archetype's non-negotiable blocks verbatim; add this depth in the project-specific
+  sections around them.
+
+If an agent you drafted reads generic or could apply to any project, it is not done — sharpen it.
+
 ## Approval (HITL)
 Before writing any file, present the proposed roster as a short table — *agent · derived-from
 archetype · domain evidence · why it exists* — and confirm with `AskUserQuestion`
@@ -73,11 +106,17 @@ archetype · domain evidence · why it exists* — and confirm with `AskUserQues
 (roles you deliberately did not create) so nothing looks forgotten.
 
 ## Self-verification before you hand off
-After writing, **check each generated file actually contains its non-negotiable markers** (e.g.
-the "Team protocol" heading and the "no temporary measures" clause for implementation agents; the
-"make the failing tests pass" / "write the tests FIRST" clause for impl/test). Read them back with
-`Grep`. If a block is missing, fix the file — do not report done with a drifted agent. List the
-files you created and confirm the protocol blocks are intact.
+Read each generated file back (`Grep`/`Read`) and verify all three, fixing any that fail before
+reporting done:
+1. **Non-negotiable markers present** — the "Team protocol" heading and the "no temporary measures"
+   clause for implementation agents; the "make the failing tests pass" / "write the tests FIRST"
+   clause for impl/test; frontend's "Live browser verification". A missing block = drifted agent, fix it.
+2. **English-only** — scan the whole file (description + body) for any non-English (e.g. CJK)
+   prose. If you wrote any project-specific section in the user's language, rewrite it in English.
+3. **Not generic** — does it name this project's real files/contracts/stack idioms, or could it
+   apply to any project? If generic, sharpen it to senior-grade for this domain.
+
+List the files you created and confirm all three checks pass.
 
 ## Memory protocol (manual, canonical path)
 Your persistent memory lives at **`.claude/agent-memory/agent-architect/`** (bare path is
