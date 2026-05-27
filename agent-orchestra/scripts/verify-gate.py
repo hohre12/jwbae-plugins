@@ -7,11 +7,11 @@ and BLOCKS (exit 2) if any fail. This anchors the gate in machine-checked facts 
 exit codes) instead of the LLM's self-reported sentinel — the orchestrator cannot mark work
 "approved" past failing tests, because this hook re-runs them independently.
 
-Idempotent: once a gate state (review-pending OR approved) has been verified green, this records a
-marker keyed by the gate.json signature and SKIPS re-running for that same state — so neither a
-finished run nor a slow async-review wait re-runs the whole suite on every later pause/turn. The
-marker invalidates automatically when gate.json changes (re-delivery → new signature → re-verify).
-`shutdown` removes the gate file entirely, so nothing fires after cleanup.
+Idempotent on `approved` ONLY: once an `approved` gate state has been verified green, a marker keyed by
+the gate.json signature lets later idle Stops skip the suite — so a finished/idle session doesn't re-run
+it forever. **`review-pending` is ALWAYS re-verified** (never skipped): it's the active gate and code may
+change mid-review (route finding → worker fixes → re-verify), so skipping it would risk shipping a stale
+green. `shutdown` removes the gate file entirely, so nothing fires after cleanup.
 
 Fails open (exit 0) only when there is nothing to verify (no verify.json) — never fakes a pass.
 """
@@ -48,16 +48,18 @@ def main() -> None:
     if status not in ("review-pending", "approved"):
         sys.exit(0)
 
-    # Idempotency: skip re-running if this exact gate state was already verified green (covers both
-    # the finished `approved` run AND the slow `review-pending` async-review wait — no re-run per yield).
+    # Idempotency (approved only): skip re-running an already-verified `approved` state on later idle
+    # Stops. NEVER skip `review-pending` — code may have changed mid-review and gate.json (the signature
+    # source) doesn't change on a code fix, so skipping it would risk a stale green.
     sig = hashlib.sha256(gate_raw.encode("utf-8")).hexdigest()
     marker_path = os.path.join(state_dir, "verified.json")
-    try:
-        with open(marker_path) as f:
-            if json.load(f).get("sig") == sig:
-                sys.exit(0)
-    except Exception:
-        pass
+    if status == "approved":
+        try:
+            with open(marker_path) as f:
+                if json.load(f).get("sig") == sig:
+                    sys.exit(0)
+        except Exception:
+            pass
 
     try:
         with open(os.path.join(cwd, ".agent-orchestra", "verify.json")) as f:
@@ -87,13 +89,15 @@ def main() -> None:
         )
         sys.exit(2)
 
-    # Green: record the verified signature so this same gate state isn't re-run on the next Stop.
-    try:
-        os.makedirs(state_dir, exist_ok=True)
-        with open(marker_path, "w") as f:
-            json.dump({"sig": sig}, f)
-    except Exception:
-        pass
+    # Green: record the verified signature for `approved` so an idle approved state isn't re-run next
+    # Stop. (review-pending is intentionally not memoized — always re-verified.)
+    if status == "approved":
+        try:
+            os.makedirs(state_dir, exist_ok=True)
+            with open(marker_path, "w") as f:
+                json.dump({"sig": sig}, f)
+        except Exception:
+            pass
     sys.exit(0)
 
 

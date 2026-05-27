@@ -139,6 +139,9 @@ The request: $ARGUMENTS
    changed-files/verification-results/next-steps, and **append one row to `docs/agent-orchestra/INDEX.md`**
    (newest first: date · feature · what/why · link). (Trivial one-line changes: no file.) The project
    PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral).
+   **If this completed the last phase of the plan, finalize the handshake** — set
+   `.agent-orchestra/plan.json` `status` to `"done"` so a finished plan isn't auto-surfaced to the next
+   unrelated run (the `shutdown` skill does this too; do it here if you clean up inline).
    **Then shut down with `/agent-orchestra:shutdown`** (or do it inline): send each teammate a shutdown
    request → wait until stopped → clean up the team → **close leftover cmux panes via `cmux close-surface`**
    (cmux exposes pane control via CLI/socket; close every teammate surface except your own `$CMUX_SURFACE_ID`).

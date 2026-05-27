@@ -138,14 +138,19 @@ test -f .claude/knowledge/README.md
 ```
 
 **Also content-check the generated worker agents (enforce, don't trust agent-architect's self-report):**
-the non-negotiable blocks must actually be present — `grep` each `.claude/agents/*.md`:
+the non-negotiable blocks must survive. The one block **every** archetype shares is `## Team protocol`,
+so assert it on every generated agent (this is the reliable universal check):
 ```
-# every implementation agent must keep these; a missing one = drifted agent → fix it
-grep -L "Team protocol" .claude/agents/*.md          # files MISSING it (should be empty for impl agents)
-grep -L "no temporary measures" .claude/agents/*.md  # (impl agents)
-# the test agent: "write the tests FIRST"; frontend: "Live browser verification"
+grep -L "Team protocol" .claude/agents/*.md   # any file listed = a drifted agent → fix it
 ```
-If a worker agent lost a block, regenerate/fix it before hand-off — same "enforce, not trust" rule as slot existence.
+Then **spot-check the type-specific blocks** only on the agents that should carry them (these are NOT in
+every archetype, so don't glob them or you'll false-flag correct files):
+- impl agents (backend/frontend/devops): the "temporary measures / swallowed errors" clause (case-insensitive),
+- the `test` agent: "write the tests FIRST",
+- `frontend`: "Live browser verification".
+
+If a generated agent dropped its block, regenerate/fix it before hand-off — same "enforce, not trust"
+rule as slot existence.
 
 Any slot that is intentionally N/A must have been declared so in the approved plan; everything
 else must exist. Report the final list (created / N/A-with-reason) — a slot that is neither is a bug.
