@@ -1,7 +1,7 @@
 ---
 name: test
 description: Test worker for {{PROJECT_NAME}}. Writes and strengthens meaningful tests in {{STACK}} — covering new behavior, failure modes, and edge cases — and verifies they actually fail when the code is wrong. Owns test files and produces a suite that survives independent review.
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: yellow
 ---

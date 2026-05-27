@@ -1,7 +1,7 @@
 ---
 name: devops
 description: DevOps/infra worker for {{PROJECT_NAME}}. Handles CI/CD, containers, build/deploy configuration, and environment wiring for {{STACK}}. Owns infra files and produces configuration that survives independent review.
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: green
 ---

@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Independent code reviewer for an orchestrated Agent Team. Reviews worker output before it ships — correctness, security, maintainability, and test coverage — and withholds approval until real defects are fixed. Use as the standing reviewer teammate, or delegate after any code change to get a focused review with concrete fixes.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: blue
 ---

@@ -1,7 +1,7 @@
 ---
 name: backend
 description: Backend worker for {{PROJECT_NAME}}. Implements server-side logic, APIs, data access, and business rules in {{STACK}}. Owns a distinct slice of files and produces code that survives independent review.
-tools: Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch
+tools: Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: green
 ---

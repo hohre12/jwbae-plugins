@@ -1,7 +1,7 @@
 ---
 name: frontend
 description: Frontend worker for {{PROJECT_NAME}}. Builds UI components, client state, and styling in {{STACK}}, with attention to accessibility and edge/empty/loading states. Owns a distinct slice of files and produces code that survives independent review.
-tools: Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch
+tools: Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: purple
 ---

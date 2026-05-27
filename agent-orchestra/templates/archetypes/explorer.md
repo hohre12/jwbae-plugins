@@ -1,7 +1,7 @@
 ---
 name: explorer
 description: Read-only investigator for {{PROJECT_NAME}}. Maps unfamiliar code, traces execution paths and dependencies, and reports findings without changing anything. Use for brownfield/legacy onboarding or before a risky change.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: orange
 ---

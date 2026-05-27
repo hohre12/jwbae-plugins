@@ -162,6 +162,15 @@ Skip all this for stable knowledge — this is only for facts that move.
 Clarify up front (1), approve the task plan once (2), report at each task boundary (4). Not every tool
 call — but never run a large job end-to-end without these checkpoints.
 
+## Teammate visibility — you only see messages + task status, not their work
+**You (the lead) cannot see a teammate's file edits or pane output — only its `SendMessage` (mailbox)
+messages and its shared-task status.** So: (a) every teammate must have `SendMessage`+`TaskUpdate`
+(step 3 / agent definitions) and be told to **claim its task (in-progress), post brief progress, and
+mark it done** — otherwise it works invisibly. (b) **An idle teammate with no message may still be
+mid-work** — check its task status and the actual files on disk before concluding it's stuck; **never
+spawn a duplicate worker on the same slice** (that causes file-overwrite conflicts). Drive visibility,
+don't guess.
+
 ## Waiting for teammates — do NOT poll or schedule wakeups
 While waiting for workers/reviewer/critic, **rely on the native team's notifications** (mailbox /
 `TeammateIdle`) — the team wakes you when a teammate finishes. **Do NOT call `ScheduleWakeup` / set a

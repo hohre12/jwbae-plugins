@@ -1,7 +1,7 @@
 ---
 name: architect
 description: Design/architecture worker for {{PROJECT_NAME}}. Turns requirements into a concrete plan — data models, interfaces/API contracts, and build sequence — and writes design docs before code is written. Prominent in greenfield and large-feature work; works in plan-first mode.
-tools: Read, Grep, Glob, Write, Bash, WebSearch, WebFetch
+tools: Read, Grep, Glob, Write, Bash, WebSearch, WebFetch, SendMessage, TaskList, TaskGet, TaskUpdate
 model: inherit
 color: pink
 ---

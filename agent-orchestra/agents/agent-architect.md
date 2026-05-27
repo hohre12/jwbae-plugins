@@ -1,7 +1,7 @@
 ---
 name: agent-architect
 description: Designs the project-specific worker roster and writes tailored .claude/agents/*.md files by composing from the plugin's archetypes. Analyzes the PRD/codebase to identify real domains, right-sizes the team (merge thin roles, split fat ones), and adds project-specific specialists — while preserving each archetype's non-negotiable protocol verbatim. Use during /agent-orchestra:init, or from /run when a genuinely new specialist is needed.
-tools: Read, Grep, Glob, Write, Edit, Bash, AskUserQuestion
+tools: Read, Grep, Glob, Write, Edit, Bash, AskUserQuestion, SendMessage, TaskList, TaskGet, TaskUpdate
 model: opus
 color: purple
 ---
@@ -61,7 +61,10 @@ For every agent in the approved roster:
    file-ownership, and "no temporary measures / no swallowed errors" clauses are load-bearing.
 4. **Tools**: implementation/design agents `Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch`
    (web tools are approval-gated by the "Latest info" rule in the archetype — keep them); read-only
-   (explorer/review-like) drop `Edit, Write`. **MCP servers**: add only if the domain needs it
+   (explorer/review-like) drop `Edit, Write`. **ALWAYS include the Agent Teams comm tools on every
+   teammate: `SendMessage, TaskList, TaskGet, TaskUpdate`** — without them a teammate cannot message
+   the lead (mailbox) or claim/complete shared tasks, so it works invisibly and the lead can't see
+   progress. Never omit these. **MCP servers**: add only if the domain needs it
    (`stitch`/`figma` → UI design agents, `context7` → framework-doc-heavy, `supabase` → DB agents,
    `github` → PR/issue agents). Never add speculatively.
 5. Write to `.claude/agents/<domain>.md`. Do not give project agents a `memory:` frontmatter key
