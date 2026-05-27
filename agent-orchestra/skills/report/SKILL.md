@@ -22,7 +22,7 @@ The argument (optional feature slug): $ARGUMENTS
 - Skip only for trivial one-line changes that warranted no run report.
 
 ## Procedure
-1. **Determine the feature + date.** Use the active feature (from `.agent-orchestra/state/plan.json` or
+1. **Determine the feature + date.** Use the active feature (from `.agent-orchestra/plan.json` or
    the run's slug) and today's real date (check `date`). Path:
    `docs/agent-orchestra/<feature>/<YYYY-MM-DD>/report.md` (create dirs as needed).
 2. **Gather the facts** of the completed work — don't narrate the chat; report the outcome:
