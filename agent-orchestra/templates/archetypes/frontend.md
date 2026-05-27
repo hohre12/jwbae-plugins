@@ -36,8 +36,9 @@ refactor. If a test seems wrong, raise it with the test worker via mailbox — d
 
 ## Live browser verification (mandatory for frontend)
 - Frontend changes are **not done until verified in a real browser with Playwright** (the
-  `playwright` MCP): launch the app, drive the actual user flow (click "Repoto Brain", panel swaps,
-  type, submit…), assert behavior, and **capture a screenshot** for the reviewer/critic to judge UX.
+  `playwright` MCP): launch the app, drive the actual user flow (navigate → click the primary action →
+  assert the panel/state change → type → submit…), assert behavior, and **capture a screenshot** for the
+  reviewer/critic to judge UX.
 - Author the E2E as repeatable tests where possible — they go in `verify.json` `e2e` and the objective
   gate re-runs them. Code-reading alone never satisfies a frontend gate.
 

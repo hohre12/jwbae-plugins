@@ -21,7 +21,7 @@ import os
 import subprocess
 import sys
 
-PER_CHECK_TIMEOUT = 300  # seconds per check; keep the sum under the hook's timeout in hooks.json
+PER_CHECK_TIMEOUT = 250  # seconds per check; 4 checks × 250 = 1000s < the 1200s hook timeout (headroom)
 
 
 def main() -> None:

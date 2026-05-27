@@ -133,7 +133,8 @@ The request: $ARGUMENTS
      it was verified, then proceed to the next task.
 
 5. **Wrap up.** After all tasks pass (codebase work complete), give a final synthesis — and, **before
-   you tell the user it's done, produce the completion report** per the **`report` skill** (this is the
+   you tell the user it's done, produce the completion report** following the **`report` skill's structure**
+   (`report/reference.md`) — write it inline here, don't invoke the skill (this is the
    "모든 작업 완료" trigger): write `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/report.md` in the
    project's **output language** (literal `OUTPUT_LANGUAGE`, e.g. `한국어`) with what/why/decisions/
    changed-files/verification-results/next-steps, and **append one row to `docs/agent-orchestra/INDEX.md`**
