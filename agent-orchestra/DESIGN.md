@@ -579,6 +579,21 @@ run에만 의존하면 분석 깊이가 오케스트레이터 판단에 좌우�
 근거: Claude Code 공식 문서상 스킬 체이닝 정식 메커니즘 없음 → 파일 + 대화 핸드오프(+훅 강제)가 권장
 (code.claude.com/docs sub-agents "Chain subagents"). 기존 gate.json/verify-gate 관용과 동일 패턴.
 
+## 18. v0.8.1 — `report` 스킬 + `teardown`→`shutdown` 리네임
+
+**`report` 스킬(신규):** 완료된 작업을 **출력 언어(예: 한국어)** 로 구조화 정리해
+`docs/agent-orchestra/<feature>/<date>/report.md`에 저장(무엇을·왜·결정·변경파일·검증결과·다음단계)
++ INDEX 한 줄. **트리거 = run 완료**(코드베이스 작업 끝 → run wrap-up이 완료 알리기 직전 자동 생성;
+run은 완료를 deterministic하게 앎 → 퍼지 Stop 훅 불필요) **+ 수동 `/agent-orchestra:report`**.
+report=run완료 단위 산출물, INDEX=세션 히스토리(한 줄). 사실충실(실패/생략/미완 그대로).
+
+**`teardown` → `shutdown` 리네임:** Agent Teams 공식 어휘에 정렬 — 공식은 팀원 *"shut down"*(리드가
+**shutdown request** 전송) + *"clean up the team"*. 스킬명/디렉터리/전 참조(run·reference·README·
+verify-gate 주석)를 `shutdown`으로 갱신, step 2를 "clean up the team(TeamDelete 가능 시 사용, 아니면
+lead에 지시)"로 공식어휘화. 출처: code.claude.com/docs/en/agent-teams.md.
+
+**최종 스킬 6개:** `init` · `plan` · `run` · `report` · `shutdown` · `briefing`.
+
 ## 부록 A. 핵심 참고 문서
 
 - Agent Teams: https://code.claude.com/docs/en/agent-teams

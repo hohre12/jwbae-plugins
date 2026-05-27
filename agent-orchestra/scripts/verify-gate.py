@@ -10,7 +10,7 @@ exit codes) instead of the LLM's self-reported sentinel — the orchestrator can
 Idempotent on `approved`: once an `approved` gate state has been verified green, this records a
 marker and SKIPS on subsequent Stops for that same gate state — so a finished run does NOT re-run
 the whole suite on every later pause/turn. A `review-pending` delivery is always re-verified (it is
-the active gate moment). `teardown` removes the gate file entirely, so nothing fires after cleanup.
+the active gate moment). `shutdown` removes the gate file entirely, so nothing fires after cleanup.
 
 Fails open (exit 0) only when there is nothing to verify (no verify.json) — never fakes a pass.
 """

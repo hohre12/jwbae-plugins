@@ -1,14 +1,15 @@
 ---
-name: teardown
-description: Cleanly shut down the current Agent Team and close its leftover cmux panes. Use when a run is finished (or stuck) and teammates' panes are still open. Run from the team lead session.
+name: shutdown
+description: Cleanly shut down the current Agent Team (official "shutdown request" + "clean up the team") and close its leftover cmux panes. Use when a run is finished (or stuck) and teammates' panes are still open. Run from the team lead session.
 disable-model-invocation: true
 ---
 
-# /agent-orchestra:teardown — shut down the team & close panes
+# /agent-orchestra:shutdown — shut down the team & clean up
 
 Agent Teams shutdown is slow and cmux does not auto-close empty teammate panes. This skill does
-the full teardown in the right order. **Run it from the lead session, only when the work is done**
-(closing a pane with a still-running teammate loses its state).
+the full shutdown + cleanup in the right order, using the official Agent Teams vocabulary
+(**shutdown request** → **clean up the team**). **Run it from the lead session, only when the work
+is done** (closing a pane with a still-running teammate loses its state).
 
 ## Steps
 
@@ -17,9 +18,10 @@ the full teardown in the right order. **Run it from the lead session, only when 
    actually stopped** (don't proceed while any is still running). Use the team config
    (`~/.claude/teams/{team}/config.json` → `members`) to know who's active.
 
-2. **Delete the team** — call **`TeamDelete`** (the native team cleanup). It removes the shared team
-   resources (`~/.claude/teams/{team}/`, `~/.claude/tasks/{team}/`) and **fails if any teammate is
-   still running**, so step 1 must be complete first.
+2. **Clean up the team** (official term) — remove the shared team resources
+   (`~/.claude/teams/{team}/`, `~/.claude/tasks/{team}/`): call the native team-cleanup
+   (`TeamDelete` if available, otherwise instruct the lead to "clean up the team"). It **fails if any
+   teammate is still running**, so step 1 must be complete first.
 
 3. **Close the leftover cmux panes** — under `cmux claude-teams`, each teammate had its own cmux
    surface. Close them with the cmux CLI:
@@ -40,8 +42,8 @@ the full teardown in the right order. **Run it from the lead session, only when 
 
 ## Phase-boundary cleanup (partial)
 Between phases of a long run (not the end), do **steps 1 + 3 only** for the teammates that finished —
-graceful shutdown + `cmux close-surface` — and **skip step 2 (`TeamDelete`)** and step 4 (gate reset),
-since the run continues. This stops dead teammates and empty panes from accumulating across phases.
+shutdown request + `cmux close-surface` — and **skip step 2 (clean up the team)** and step 4 (gate
+reset), since the run continues. This stops dead teammates and empty panes from accumulating across phases.
 
 ## Safety
 - Never close a pane whose teammate is still working — wait for shutdown first.

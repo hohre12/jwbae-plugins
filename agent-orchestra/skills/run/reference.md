@@ -97,8 +97,8 @@ Order matters: **shut down teammates → confirm stopped → `clean up the team`
 Cleanup *fails* if any teammate is still running, and Agent Teams shutdown is slow (a teammate finishes
 its current request before exiting). After cleanup, cmux leaves the empty panes open — **close them with
 the cmux CLI** (`cmux close-surface --surface <id>`, preserving your own `$CMUX_SURFACE_ID`). The
-**`/agent-orchestra:teardown`** skill does all of this in order. (A *hook* can't auto-close panes — no
-"teammate exited" event — but a user-invoked teardown skill can, via cmux's CLI/socket.)
+**`/agent-orchestra:shutdown`** skill does all of this in order. (A *hook* can't auto-close panes — no
+"teammate exited" event — but a user-invoked shutdown skill can, via cmux's CLI/socket.)
 
 ## When the gate fails
 

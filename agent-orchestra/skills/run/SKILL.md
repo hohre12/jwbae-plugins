@@ -69,8 +69,8 @@ The request: $ARGUMENTS
      (e.g. integration/E2E needs the API to exist). If a contract can be agreed up front, prefer one
      phase with parallel backend ∥ frontend tracks over "backend phase, then frontend phase".
    - **Clean up at each phase boundary** — before starting the next phase, **shut down the teammates
-     that finished and close their cmux panes** (teardown steps 1 + 3 mechanics: graceful shutdown
-     request, then `cmux close-surface` for each — but **do NOT `TeamDelete`**, the run continues).
+     that finished and close their cmux panes** (`shutdown` skill steps 1 + 3 mechanics: shutdown
+     request, then `cmux close-surface` for each — but **do NOT clean up the team**, the run continues).
      Otherwise dead teammates and empty panes accumulate across phases (they don't auto-close). Keep
      the lead and any standing reviewer/critic you'll reuse; spawn the next phase's roster fresh.
    - **State the worker roster in one line** (e.g. "workers: backend, test — no frontend needed (vanilla
@@ -129,15 +129,17 @@ The request: $ARGUMENTS
    - **Report at the task boundary (HITL):** when the task passes, tell the user what was done and how
      it was verified, then proceed to the next task.
 
-5. **Wrap up.** After all tasks pass, give a final synthesis and (for substantial work) save the run
-   report at `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/report.md` (small changes: no file).
-   The project PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral).
-   **Append one row to `docs/agent-orchestra/INDEX.md`** (newest first): date · feature · one-line
-   what/why · links to this run's report/review — so a newcomer can read the project history.
-   **Then tear down with `/agent-orchestra:teardown`** (or do it inline): shut teammates down → wait
-   until stopped → clean up the team → **close leftover cmux panes via `cmux close-surface`** (cmux
-   exposes pane control via CLI/socket; close every teammate surface except your own `$CMUX_SURFACE_ID`).
-   See `skills/teardown/SKILL.md`.
+5. **Wrap up.** After all tasks pass (codebase work complete), give a final synthesis — and, **before
+   you tell the user it's done, produce the completion report** per the **`report` skill** (this is the
+   "모든 작업 완료" trigger): write `docs/agent-orchestra/<feature-slug>/<YYYY-MM-DD>/report.md` in the
+   project's **output language** (literal `OUTPUT_LANGUAGE`, e.g. `한국어`) with what/why/decisions/
+   changed-files/verification-results/next-steps, and **append one row to `docs/agent-orchestra/INDEX.md`**
+   (newest first: date · feature · what/why · link). (Trivial one-line changes: no file.) The project
+   PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral).
+   **Then shut down with `/agent-orchestra:shutdown`** (or do it inline): send each teammate a shutdown
+   request → wait until stopped → clean up the team → **close leftover cmux panes via `cmux close-surface`**
+   (cmux exposes pane control via CLI/socket; close every teammate surface except your own `$CMUX_SURFACE_ID`).
+   See `skills/shutdown/SKILL.md`.
 
 ## External facts & latest info (approval-gated, date-anchored)
 Don't rely only on training-cutoff knowledge for things that change — library/framework APIs,

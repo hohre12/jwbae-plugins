@@ -53,8 +53,9 @@ The plugin ships three standing agents (not copied per project):
 | `/agent-orchestra:init` | Triage the project and scaffold the standard `.claude/` layout (re-runnable) |
 | `/agent-orchestra:plan` | Deeply analyze a substantial/brownfield change (read-only, multi-agent) + HITL interview → an approved design agreement (`plan.md`) that `run` implements against |
 | `/agent-orchestra:run` | Orchestrate a task as an observable Agent Team (auto-picks up an approved plan) |
+| `/agent-orchestra:report` | Summarize the completed work into a Korean/output-language `report.md` (auto on run completion, or on demand) |
+| `/agent-orchestra:shutdown` | Shut down the team (shutdown request + clean up the team) and close leftover cmux panes (when a run is done/stuck) |
 | `/agent-orchestra:briefing` | Brief assigned Redmine issues, then start work |
-| `/agent-orchestra:teardown` | Shut down the team and close leftover cmux panes (run when a run is done/stuck) |
 
 ## Develop / test locally
 
