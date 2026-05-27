@@ -19,8 +19,11 @@ import sys
 
 
 def is_review_agent(agent_type: str) -> bool:
+    # Match the plugin's canonical review agents (reviewer, critic) + their delta spawns
+    # (reviewer-d2, critic-d2, namespaced variants) — NOT a bare substring of "review", which
+    # would mis-match a domain worker like "code-review-tooling".
     a = (agent_type or "").lower()
-    return "review" in a or "critic" in a
+    return "reviewer" in a or "critic" in a
 
 
 def main() -> None:

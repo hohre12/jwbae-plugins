@@ -1,6 +1,7 @@
 ---
 name: report
-description: Summarize the work completed in this run/session into a structured report.md at the protocol path, written in the project's output language (e.g. 한국어). Auto-produced by /agent-orchestra:run when codebase work finishes; also invokable on demand to (re)generate the report for a feature.
+description: Summarize the work completed in this run/session into a structured report.md at the protocol path, written in the project's output language (e.g. 한국어). On-demand report (re)generation for a feature. (At run completion the report is produced inline by /agent-orchestra:run's wrap-up — this skill is the manual/standalone entry, so it doesn't double-fire.)
+disable-model-invocation: true
 argument-hint: "[optional: feature slug]"
 ---
 
@@ -35,7 +36,9 @@ The argument (optional feature slug): $ARGUMENTS
 5. **Tell the user** where the report was saved.
 
 ## Hard rules
-- **Output language only** — write the report in the literal `OUTPUT_LANGUAGE` (e.g. `한국어`).
+- **Output language only** — write the report in the literal `OUTPUT_LANGUAGE` from `CLAUDE.md`
+  (e.g. `한국어`). **If `CLAUDE.md`/`OUTPUT_LANGUAGE` is missing or still a placeholder, fall back to the
+  language the user is writing in** (and note that fallback).
 - **Report outcomes faithfully** — if something failed, was skipped, or is unfinished, say so plainly;
   don't claim done what isn't (the verify-gate facts are the source of truth).
 - **Fixed protocol path** (`docs/agent-orchestra/<feature>/<date>/report.md`) — don't scatter reports.

@@ -7,10 +7,11 @@ and BLOCKS (exit 2) if any fail. This anchors the gate in machine-checked facts 
 exit codes) instead of the LLM's self-reported sentinel — the orchestrator cannot mark work
 "approved" past failing tests, because this hook re-runs them independently.
 
-Idempotent on `approved`: once an `approved` gate state has been verified green, this records a
-marker and SKIPS on subsequent Stops for that same gate state — so a finished run does NOT re-run
-the whole suite on every later pause/turn. A `review-pending` delivery is always re-verified (it is
-the active gate moment). `shutdown` removes the gate file entirely, so nothing fires after cleanup.
+Idempotent: once a gate state (review-pending OR approved) has been verified green, this records a
+marker keyed by the gate.json signature and SKIPS re-running for that same state — so neither a
+finished run nor a slow async-review wait re-runs the whole suite on every later pause/turn. The
+marker invalidates automatically when gate.json changes (re-delivery → new signature → re-verify).
+`shutdown` removes the gate file entirely, so nothing fires after cleanup.
 
 Fails open (exit 0) only when there is nothing to verify (no verify.json) — never fakes a pass.
 """
@@ -47,16 +48,16 @@ def main() -> None:
     if status not in ("review-pending", "approved"):
         sys.exit(0)
 
-    # Idempotency: skip re-running an already-verified `approved` state (finished run, idle turns).
+    # Idempotency: skip re-running if this exact gate state was already verified green (covers both
+    # the finished `approved` run AND the slow `review-pending` async-review wait — no re-run per yield).
     sig = hashlib.sha256(gate_raw.encode("utf-8")).hexdigest()
     marker_path = os.path.join(state_dir, "verified.json")
-    if status == "approved":
-        try:
-            with open(marker_path) as f:
-                if json.load(f).get("sig") == sig:
-                    sys.exit(0)
-        except Exception:
-            pass
+    try:
+        with open(marker_path) as f:
+            if json.load(f).get("sig") == sig:
+                sys.exit(0)
+    except Exception:
+        pass
 
     try:
         with open(os.path.join(cwd, ".agent-orchestra", "verify.json")) as f:
@@ -86,14 +87,13 @@ def main() -> None:
         )
         sys.exit(2)
 
-    # Green: record the verified signature so an idle `approved` state isn't re-run next Stop.
-    if status == "approved":
-        try:
-            os.makedirs(state_dir, exist_ok=True)
-            with open(marker_path, "w") as f:
-                json.dump({"sig": sig}, f)
-        except Exception:
-            pass
+    # Green: record the verified signature so this same gate state isn't re-run on the next Stop.
+    try:
+        os.makedirs(state_dir, exist_ok=True)
+        with open(marker_path, "w") as f:
+            json.dump({"sig": sig}, f)
+    except Exception:
+        pass
     sys.exit(0)
 
 

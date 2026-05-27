@@ -594,6 +594,23 @@ lead에 지시)"로 공식어휘화. 출처: code.claude.com/docs/en/agent-teams
 
 **최종 스킬 6개:** `init` · `plan` · `run` · `report` · `shutdown` · `briefing`.
 
+## 19. v0.8.2 — 독립 콜드 감사 결함 14건 수정
+
+독립 리뷰어가 전체 흐름(install→init→plan→run→report→shutdown) 시뮬레이션으로 찾은 실결함 수정:
+- **gitignore 모순(Blocker)**: `.agent-orchestra/` 전체 무시 → verify.json(게이트 설정)·plan.json(핸드셰이크)
+  미영속. → **`.agent-orchestra/state/`만 gitignore**(gate/verified=transient), **verify.json·plan.json은 커밋**.
+  plan.json 경로 `state/` → `.agent-orchestra/plan.json`.
+- **init 허브 오판(Blocker)**: cwd만 스캔 → 빈 허브를 greenfield로. → triage에 "빈 cwd + add-dir = brownfield 허브,
+  레포별 triage, verify.json은 레포 체인" 명시.
+- **init 위임 불가(Blocker)**: `allowed-tools`에 Agent 없어 agent-architect 위임 불가. → allowed-tools 제거.
+- **report 이중작성(Major)**: model-invocable + run 인라인 → `disable-model-invocation: true`(수동 전용), run이 인라인 생성.
+- **team-gate 부분문자열(Major)**: `"review"` → `"reviewer"`(canonical, code-review-tooling 오탐 제거).
+- **verify-gate 리뷰대기 매턴 전체 재실행(Major)**: 멱등 마커를 `approved`뿐 아니라 `review-pending`에도 적용(시그니처 동일시 skip).
+- **state 디렉터리 미생성(Major)**: init이 `.agent-orchestra/state/` 생성 + post-apply 검증.
+- **생성 에이전트 콘텐츠 미검증(Major)**: init post-apply에 비협상 블록 grep 검증 추가("enforce, not trust").
+- **Minor**: plan explorer 폴백 명시 · report OUTPUT_LANGUAGE 폴백 · shutdown이 완료 plan.json `done` 종료처리 ·
+  guard-dangerous `.env` 셸읽기/MultiEdit/Notebook 커버 · run teams 환경 하드체크(subagent 격하 방지) · v2-seams critic 계약 문구 일치.
+
 ## 부록 A. 핵심 참고 문서
 
 - Agent Teams: https://code.claude.com/docs/en/agent-teams

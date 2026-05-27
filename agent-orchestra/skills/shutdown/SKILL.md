@@ -36,6 +36,10 @@ is done** (closing a pane with a still-running teammate loses its state).
    at `approved`: a lingering `approved` makes the objective `verify-gate` hook re-run the whole
    test/lint/build/e2e suite on **every** later Stop (even normal chat). Removing the file is the
    terminal state — no hook fires until the next run creates a fresh gate.
+   - **Finalize the plan handshake** — if `.agent-orchestra/plan.json` exists and **all its phases are
+     `done`**, set its `status` to `"done"` (or clear the active pointer). This stops a stale `approved`
+     plan from being auto-surfaced as "active" by the next, unrelated `run`. (If phases remain `pending`,
+     leave it — the feature isn't finished.)
 
 5. **Report** what was shut down, cleaned, and closed; note anything that couldn't be closed
    automatically so the user can close it by hand.

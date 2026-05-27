@@ -10,6 +10,10 @@ Detailed procedures for `/agent-orchestra:plan`. Read before planning.
   parallel read-only agents). Each maps, against the goal: components, data models, API/contracts,
   identifiers, auth/tenancy, existing patterns, and the **exact seams** where new code attaches.
 - Cross-repo / multi-project: each explorer owns one repo; the lead synthesizes the seams *between* them.
+- **If no `explorer` agent exists on disk** (init's roster is project-tailored and may omit it for an
+  in-development project): have `agent-architect` instantiate one from the `explorer` archetype, **or**
+  spawn read-only general agents and give them the explorer discipline inline (read-only, cite `file:line`,
+  verified-vs-inferred). Don't skip the deep analysis for lack of a pre-made explorer.
 - Explorers cite `file:line`; distinguish **verified** from **inferred**. No edits, no `Write` to code.
 - Pull in `.claude/knowledge/` domain context; reconcile the goal against what the code actually does.
 
@@ -43,7 +47,8 @@ Keep it the **living source of truth** for the feature. Revising re-writes it (g
 
 ## `plan.json` handshake (the run protocol)
 
-Write only after approval, to `.agent-orchestra/state/plan.json`:
+Write only after approval, to `.agent-orchestra/plan.json` (**committed** — the durable handshake;
+`.agent-orchestra/state/` holds only transient hook state). `mkdir -p .agent-orchestra` if needed:
 
 ```json
 {
@@ -59,9 +64,11 @@ Write only after approval, to `.agent-orchestra/state/plan.json`:
 }
 ```
 
-- `status`: `draft` (in progress) → `approved` (run may consume) . Phase `status`: `pending` → `done`
-  (run marks a phase done when its gate passes). This lets `run` resume the next pending phase and avoids
-  re-running consumed work.
+- `status`: `draft` (in progress) → `approved` (run may consume) → `done` (all phases finished; set by
+  `shutdown` so a stale approved plan isn't auto-surfaced to the next unrelated run). Phase `status`:
+  `pending` → `done` (run marks a phase done when its gate passes). This lets `run` resume the next pending
+  phase and avoids re-running consumed work.
+- Committed at `.agent-orchestra/plan.json` (durable handshake); transient hook state stays in `.agent-orchestra/state/`.
 - **Single active pointer**: `plan.json` names the current feature plan. Multiple features each keep their
   own `plan.md`; `plan.json` points to the active one. If several plans exist, `run` asks which (by slug)
   — it never auto-guesses.

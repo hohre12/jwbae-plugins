@@ -11,8 +11,8 @@ server ships in v1 (a non-functional server would be worse than none).
 critic.review(target, context) -> findings
   target:  what to scrutinize (diff, files, task, plan)
   context: project conventions + the request + relevant memory
-  findings: blocking concerns + noted risks, ending with
-            "CONCERNS: <n blocking, m noted>" or "NO BLOCKING CONCERNS"
+  findings: blocking concerns + proposals, ending with
+            "CONCERNS: <n blocking, m proposals>" or "NO BLOCKING CONCERNS"
 ```
 
 - **v1 implementation:** the native `critic` agent (teammate). Output format already matches

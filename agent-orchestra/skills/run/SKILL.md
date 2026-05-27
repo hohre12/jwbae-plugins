@@ -36,10 +36,13 @@ The request: $ARGUMENTS
 ## Preconditions
 - This project should have been set up by `/agent-orchestra:init` (a `.claude/` with agents,
   rules, settings). If `.claude/agents/` is missing, tell the user to run `/agent-orchestra:init` first.
-- Agent Teams must be enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) and you should be
-  running under `cmux claude-teams` with `teammateMode: tmux` so teammates open in cmux panes.
+- **Agent Teams must be enabled — verify, don't assume.** Check
+  `` !`echo "TEAMS=$CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS cmux=$CMUX_SURFACE_ID"` ``. If Agent Teams is
+  **not** enabled (or you can't create a native team), **stop and tell the user to relaunch under
+  `cmux claude-teams --dangerously-skip-permissions` (with `teammateMode: tmux`)** — do **not** silently
+  fall back to in-process subagents (that's the failure mode step 3 forbids).
 - **Approved plan handshake (for substantial / brownfield work).** Read
-  `.agent-orchestra/state/plan.json` (e.g. `` !`cat .agent-orchestra/state/plan.json 2>/dev/null` ``):
+  `.agent-orchestra/plan.json` (e.g. `` !`cat .agent-orchestra/plan.json 2>/dev/null` ``):
   - If an **approved** plan matches this request (or the user named a slug): **announce which plan you'll
     use — feature · `plan_path` · `updated` date — and confirm with the user before building** (this is
     the guard against consuming the wrong/stale plan). Then load `plan.md` as the **binding contract /

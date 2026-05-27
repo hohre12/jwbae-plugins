@@ -2,7 +2,6 @@
 name: init
 description: Set up (or reconcile) the standard .claude layout for a project — triage project maturity, then scaffold CLAUDE.md, settings, rules, agents, and agent-memory with nothing forgotten. Run once per project; re-runnable to reconcile. Use when onboarding a project to Agent Orchestra.
 disable-model-invocation: true
-allowed-tools: Read Grep Glob Bash Write Edit AskUserQuestion
 argument-hint: "[optional: one-line project idea for an empty repo]"
 ---
 

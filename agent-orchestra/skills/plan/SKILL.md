@@ -51,7 +51,7 @@ The request: $ARGUMENTS
 
 6. **Review & approve (HITL gate).** Present the plan; get explicit approval (`AskUserQuestion`:
    approve / adjust / just proceed). **Only after approval**, write the handshake
-   `.agent-orchestra/state/plan.json` with `status: "approved"` (see `reference.md` schema). If the user
+   `.agent-orchestra/plan.json` with `status: "approved"` (see `reference.md` schema). If the user
    adjusts, revise `plan.md` and re-confirm. Until approved, keep `status: "draft"`.
 
 7. **Hand off.** Tell the user they can implement now: just `/agent-orchestra:run` (auto-picks this plan),

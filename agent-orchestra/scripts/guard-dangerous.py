@@ -36,13 +36,15 @@ def main() -> None:
             (r"\bdd\b[^\n]*\bof=/dev/", "raw disk write (dd of=/dev/...)"),
             (r">\s*/dev/sd[a-z]", "write to raw disk device"),
             (r":\s*\(\)\s*\{\s*:\s*\|", "fork bomb"),
+            (r"\b(cat|less|more|head|tail|nl|xxd|od|bat|strings)\s+[^|;&]*\.env\b(?!\.example)",
+             "read of secret .env file via shell"),
         ]
         for pat, desc in dangerous:
             if re.search(pat, cmd):
                 block(f"{desc}: {cmd!r}")
 
-    elif tool in ("Read", "Edit", "Write"):
-        fp = ti.get("file_path", "") or ""
+    elif tool in ("Read", "Edit", "Write", "MultiEdit", "NotebookEdit"):
+        fp = ti.get("file_path", "") or ti.get("notebook_path", "") or ""
         base = os.path.basename(fp)
         if (base == ".env" or base.startswith(".env.")) and not base.endswith(".example"):
             block(f"access to secret file {fp!r}. Use environment variables / userConfig, not the .env file.")

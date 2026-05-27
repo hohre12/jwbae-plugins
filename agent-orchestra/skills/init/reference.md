@@ -16,6 +16,14 @@ Classify from the auto-collected signals:
 
 Pick the closest stage; if ambiguous, state both candidates and ask the user.
 
+**⚠️ Multi-repo hub (empty cwd + attached repos):** the auto-signals only scan the **cwd**. If the cwd
+is sparse/empty but **additional working directories are attached** (`--add-dir`, i.e. an orchestration
+hub of several real repos), do **not** classify greenfield — that's the wrong call. Treat it as a
+**brownfield hub**: read each attached repo, triage **per repo** (each may differ), set up the hub as the
+control plane (`.claude/`, knowledge, `docs/`) while the real code stays in the attached repos, and make
+`verify.json` chain the attached repos' checks (see verify.json row). Confirm the attached-repo list with
+the user if it isn't obvious from the prompt.
+
 ## Standard-slot checklist
 
 Walk every slot. Create from the template, or record an explicit reasoned N/A.
@@ -28,7 +36,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{orchestrator,reviewer,critic,agent-architect}/MEMORY.md` | (create empty seed) | **Bare paths = canonical** (reviewer/critic/agent-architect carry no `memory:` frontmatter → no namespaced `agent-orchestra-*` dirs). Concise index seed; `/run` + agents fill via Bash over time. Committed & shared |
 | `.claude/agents/<domain>.md` | **`agent-architect`** (composes archetypes) | Roster design is delegated — see § Roster design below. Not plain substitution |
-| `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. gitignored |
+| `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. **Committed** (it's project config every contributor/run needs — a fresh clone without it makes the gate fail-open). For a multi-repo hub, chain the attached repos: e.g. `"test": "npm --prefix <repoA> run test && npm --prefix <repoB> run test"` |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
 | `docs/agent-orchestra/INDEX.md` | `templates/INDEX.md.tmpl` | **Onboarding timeline** — `/run` appends one row per substantial run (date · feature · what/why · links). A newcomer reads this for project history |
@@ -56,7 +64,11 @@ opt out anytime). Add a one-line nudge in `CLAUDE.md` ("substantive code/design/
 `/agent-orchestra:run`") so it isn't forgotten. This matches plugin conventions and AI-DLC's
 invoked, checkpoint-based model.
 
-Also: ensure `.gitignore` covers `.claude/settings.local.json` and `.agent-orchestra/` (gate state).
+Also: ensure `.gitignore` covers `.claude/settings.local.json` and **`.agent-orchestra/state/`**
+(transient hook state — `gate.json`, `verified.json`). **Do NOT ignore `.agent-orchestra/verify.json`
+(gate config) or `.agent-orchestra/plan.json` (the approved-plan handshake)** — those are committed so
+a fresh clone/teammate still has the objective gate and the plan handshake. Create the
+`.agent-orchestra/state/` directory at scaffold time (so the first gate/plan write doesn't fail).
 `bypassPermissions` is **not** written here — the user runs `cgo` (the `--dangerously-skip-permissions` flag).
 
 **Context-budget guard:** `CLAUDE.md` loads **in full** every session — keep it under ~200 lines.
@@ -119,10 +131,21 @@ test -f .claude/agent-memory/reviewer/MEMORY.md
 test -f .claude/agent-memory/critic/MEMORY.md
 test -f .claude/agent-memory/agent-architect/MEMORY.md
 test -f .agent-orchestra/verify.json
+test -d .agent-orchestra/state            # gate/plan/verified state dir (gitignored part)
 test -f docs/agent-orchestra/INDEX.md
 test -f .claude/knowledge/index.md
 test -f .claude/knowledge/README.md
 ```
+
+**Also content-check the generated worker agents (enforce, don't trust agent-architect's self-report):**
+the non-negotiable blocks must actually be present — `grep` each `.claude/agents/*.md`:
+```
+# every implementation agent must keep these; a missing one = drifted agent → fix it
+grep -L "Team protocol" .claude/agents/*.md          # files MISSING it (should be empty for impl agents)
+grep -L "no temporary measures" .claude/agents/*.md  # (impl agents)
+# the test agent: "write the tests FIRST"; frontend: "Live browser verification"
+```
+If a worker agent lost a block, regenerate/fix it before hand-off — same "enforce, not trust" rule as slot existence.
 
 Any slot that is intentionally N/A must have been declared so in the approved plan; everything
 else must exist. Report the final list (created / N/A-with-reason) — a slot that is neither is a bug.
