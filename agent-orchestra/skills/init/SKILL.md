@@ -59,9 +59,12 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
    recorded maturity/roster in `CLAUDE.md` and **propose** changes (add/retire workers, stage
    change) the same way — propose → approve → apply. Never auto-apply.
 
-8. **Hand off.** Print what you created/changed and the explicit N/As. Then they can run
-   substantive work with `/agent-orchestra:run` in the same session (under `cmux claude-teams` the
-   Agent Teams env is already active; the `settings.json` env is a fallback for plain launches).
+8. **Hand off.** Print what you created/changed and the explicit N/As. **⚠️ If you created or changed any
+   `.claude/agents/*.md` this run, tell the user to RESTART the session before `/agent-orchestra:plan` or
+   `/agent-orchestra:run`** — Claude Code loads `.claude/agents/` at session start, so agents created
+   *this* session are NOT yet spawnable ("Agent type '<name>' not found"). Restart = exit and relaunch
+   `cmux claude-teams` from the project root; the new agents load on the fresh session. (The `settings.json`
+   env / `cmux claude-teams` provide the Agent Teams runtime; the env is a fallback for plain launches.)
 
 ## Hard rules
 
