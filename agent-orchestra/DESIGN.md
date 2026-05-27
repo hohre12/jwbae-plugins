@@ -569,7 +569,7 @@ run에만 의존하면 분석 깊이가 오케스트레이터 판단에 좌우�
 - **read-only**: 제품 코드/에이전트 변경 0. 합의문 + 핸드셰이크만.
 
 **plan↔run 프로토콜 (공식 권장에 부합 — 정식 체이닝 메커니즘 없음 → 파일 아티팩트 + 대화 핸드오프 + 훅):**
-- 승인 시 `.agent-orchestra/state/plan.json`(active 포인터: feature·plan_path·status·version·phases) 기록.
+- 승인 시 `.agent-orchestra/plan.json`(커밋되는 active 포인터: feature·plan_path·status·version·phases) 기록. (v0.8.2: state/ → 커밋 경로)
 - `run` 전제조건이 plan.json을 읽어 **승인된 plan을 자동 인식 → 어떤 plan인지 announce+확인 → plan.md를
   계약(앵커)으로** 분해(못 박은 결정 재론 X). phase 완료 시 plan.json에 `done` 마킹·다음 pending 재개.
 - **엉뚱한 plan 방지:** ① run의 announce+HITL 확인(주 방어) ② plan.json 단일 active 포인터 + status/phase
