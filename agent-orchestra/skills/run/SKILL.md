@@ -38,6 +38,17 @@ The request: $ARGUMENTS
   rules, settings). If `.claude/agents/` is missing, tell the user to run `/agent-orchestra:init` first.
 - Agent Teams must be enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) and you should be
   running under `cmux claude-teams` with `teammateMode: tmux` so teammates open in cmux panes.
+- **Approved plan handshake (for substantial / brownfield work).** Read
+  `.agent-orchestra/state/plan.json` (e.g. `` !`cat .agent-orchestra/state/plan.json 2>/dev/null` ``):
+  - If an **approved** plan matches this request (or the user named a slug): **announce which plan you'll
+    use — feature · `plan_path` · `updated` date — and confirm with the user before building** (this is
+    the guard against consuming the wrong/stale plan). Then load `plan.md` as the **binding contract /
+    anchor**: do not re-litigate its locked decisions; surface only *new* conflicts you hit. As each phase
+    passes its gate, mark that phase `done` in `plan.json` and resume the next `pending` one.
+  - If the work is **substantial / brownfield and no approved plan exists**: **offer to run
+    `/agent-orchestra:plan` first** (don't build blind on existing code). `"just proceed"` is the user's escape.
+  - **Trivial one-liners / quick fixes:** skip this — handle inline.
+  - **Multiple plans / ambiguity:** ask which feature (by slug); **never auto-guess** the plan.
 
 ## Procedure (follow in order — do not skip the gate)
 
@@ -154,4 +165,6 @@ reminds you the gate isn't passed, that's expected — drive the gate to complet
 - **Native Agent Team, never subagents** (step 3). **Never report done without the gate** (step 4).
 - **TDD always:** independent `test` worker writes failing tests first; implementation makes them pass.
 - **Never `ScheduleWakeup`/background-poll to wait for teammates** — it re-enters this skill and resets the team (above).
+- **Use only a user-confirmed plan** (Preconditions): announce which plan, confirm, treat `plan.md` as the
+  contract, and mark phase status in `plan.json` — never silently consume a plan the user didn't confirm.
 - Do it right the first time: no temporary measures, swallowed errors, or silent omissions — the critic blocks them.

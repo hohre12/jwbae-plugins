@@ -557,6 +557,28 @@ substantial run마다 한 줄(날짜·기능·what/why·산출물 링크) 추가
 `git push` + 클론 갱신 전까지 새 프로젝트 설치에 반영되지 않음. v0.7 init의 전체 슬롯 생성 검증은 push 후
 마켓플레이스 클론을 최신화한 뒤 수행해야 유효(이전 ao-v07 누락은 LLM 스킵이 아니라 v0.6.0 클론 설치였음).
 
+## 17. v0.8 — `/plan` 스킬 + plan↔run 프로토콜
+
+**문제:** 그린필드가 아닌(brownfield) substantial 작업은 *착수 전 철저한 분석 + HITL 합의*가 필요한데,
+run에만 의존하면 분석 깊이가 오케스트레이터 판단에 좌우되고, 합의가 휘발성 내부 단계로 남음.
+
+**해결 — 별도 `/agent-orchestra:plan` 스킬(읽기전용):**
+- 절차: 목표 프레이밍 → **explorer 멀티에이전트(레포당 1명, 병렬)로 실제 코드 정밀 분석** → 결정/리스크
+  추출 후 **HITL 인터뷰(`AskUserQuestion`, 큰 건은 하나씩; 표준은 날짜기준 검색·승인)** → **phase 분해
+  (계약-우선 병렬)** → **`docs/agent-orchestra/<slug>/plan.md`(합의문, 1급 산출물)** 작성 → 승인 게이트.
+- **read-only**: 제품 코드/에이전트 변경 0. 합의문 + 핸드셰이크만.
+
+**plan↔run 프로토콜 (공식 권장에 부합 — 정식 체이닝 메커니즘 없음 → 파일 아티팩트 + 대화 핸드오프 + 훅):**
+- 승인 시 `.agent-orchestra/state/plan.json`(active 포인터: feature·plan_path·status·version·phases) 기록.
+- `run` 전제조건이 plan.json을 읽어 **승인된 plan을 자동 인식 → 어떤 plan인지 announce+확인 → plan.md를
+  계약(앵커)으로** 분해(못 박은 결정 재론 X). phase 완료 시 plan.json에 `done` 마킹·다음 pending 재개.
+- **엉뚱한 plan 방지:** ① run의 announce+HITL 확인(주 방어) ② plan.json 단일 active 포인터 + status/phase
+  ③ 여러 plan이면 슬러그 요구(자동추측 금지) ④ stale + 코드변경 시 재-plan 권유.
+- **per-feature**: feature별 폴더, 재실행 시 그 plan.md revise(git 이력). trivial은 plan 스킵(run 인라인).
+
+근거: Claude Code 공식 문서상 스킬 체이닝 정식 메커니즘 없음 → 파일 + 대화 핸드오프(+훅 강제)가 권장
+(code.claude.com/docs sub-agents "Chain subagents"). 기존 gate.json/verify-gate 관용과 동일 패턴.
+
 ## 부록 A. 핵심 참고 문서
 
 - Agent Teams: https://code.claude.com/docs/en/agent-teams
