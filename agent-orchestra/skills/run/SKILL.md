@@ -47,7 +47,8 @@ The request: $ARGUMENTS
     use — feature · `plan_path` · `updated` date — and confirm with the user before building** (this is
     the guard against consuming the wrong/stale plan). Then load `plan.md` as the **binding contract /
     anchor**: do not re-litigate its locked decisions; surface only *new* conflicts you hit. As each phase
-    passes its gate, mark that phase `done` in `plan.json` and resume the next `pending` one.
+    passes its gate, mark that phase `done` in the feature's `docs/.../<slug>/plan.json` and refresh the
+    active `.agent-orchestra/plan.json` (the `plan` skill's two-location handshake), then resume the next `pending` one.
   - If the work is **substantial / brownfield and no approved plan exists**: **offer to run
     `/agent-orchestra:plan` first** (don't build blind on existing code). `"just proceed"` is the user's escape.
   - **Trivial one-liners / quick fixes:** skip this — handle inline.
@@ -77,11 +78,16 @@ The request: $ARGUMENTS
      Otherwise dead teammates and empty panes accumulate across phases (they don't auto-close). Keep
      the lead and any standing reviewer/critic you'll reuse; spawn the next phase's roster fresh.
    - **State the worker roster in one line** (e.g. "workers: backend, test — no frontend needed (vanilla
-     page)"). **Default to existing workers; don't over-create.** Propose a **new** worker only when the
-     task needs a genuinely distinct skillset (real UI/SPA → `frontend`, CI/deploy → `devops`, or a
-     project-specific domain) — then **delegate its creation to the `agent-architect` agent** (it
-     composes from the archetypes and preserves their non-negotiable blocks) for the user's approval.
-     Small change → one task, existing workers.
+     page)"). **Default to existing workers; don't over-create.** If the task needs a genuinely distinct
+     skillset (real UI/SPA → `frontend`, CI/deploy → `devops`, or a project-specific domain) that **no
+     existing agent on disk covers**, mind this constraint: **`.claude/agents/` is loaded only at session
+     start, so an agent written mid-run is NOT spawnable this session** ("Agent type '<name>' not found").
+     So **(a) for THIS run**, spawn the *closest existing* agent type and inject the specialist's domain
+     instructions inline in its spawn prompt; **(b) to grow the roster**, have the `agent-architect` agent
+     write the new `.claude/agents/<domain>.md` (it composes from the archetypes, preserves the
+     non-negotiable blocks, and **returns its roster proposal to you for approval — it does not
+     self-prompt**) — that agent becomes spawnable **next session (tell the user to restart)**. Never block
+     this run waiting on a not-yet-loadable agent. Small change → one task, existing workers.
    - **Decompose for parallelism (it's why this is a team).** Map the dependency graph, then assign
      **independent tasks to different teammates to run concurrently** — don't lay everything on a
      single serial critical path. Sequence only genuine dependencies (TDD test→impl; B truly needs
@@ -95,6 +101,10 @@ The request: $ARGUMENTS
    task list, mailbox). **Do NOT use the Task/subagent tool** — subagents run in-process ("Running N
    agents"), can't open panes or message each other. Spawn the workers each task needs from
    `.claude/agents/` (distinct file slices) plus the standing `reviewer` and `critic`.
+   - **Open the gate sentinel NOW (작업시작 status write):** the moment you form the team, write
+     `.agent-orchestra/state/gate.json` with `status: "in-progress"` (create the dir if needed). Every gate
+     hook reads this file — **if it doesn't exist, the bias-correction gate silently does nothing.** This is
+     the first of the status writes you drive through the run (`reference.md` § Gate contract).
    - **Reviewer/critic context isolation (critical for unbiased judgment):** when you spawn them,
      give them **only the result** (the diff / changed files + the agreed contract) **+ their injected
      memory** — **never the workers' reasoning, plan, or conversation.** They judge the artifact cold,
@@ -118,7 +128,12 @@ The request: $ARGUMENTS
      **and the objective checks pass.** The `verify-gate` hook **independently re-runs** the project's
      `test`/`lint`/`build` (and `e2e`) from `.agent-orchestra/verify.json` at the gate — so a reviewer
      `APPROVE` **cannot** pass while tests fail (no faking via the sentinel). Drive the gate sentinel
-     (`reference.md` § Gate contract). If blocked, route findings back, fix, re-verify.
+     (`reference.md` § Gate contract). **The sentinel is one team-wide state, so gate at a batch/phase
+     boundary — not per individual parallel task:** let the independent parallel tasks all reach
+     completion, then flip the batch to `review-pending` and review it as a unit. (Flipping to
+     `review-pending` while other independent tasks are still open would wrongly block *their* completion.)
+     If blocked, route findings back **and set the sentinel back to `in-progress`** while the worker fixes,
+     then `review-pending` again to re-review.
    - **Surface the critic's non-blocking proposals to the user (HITL — don't decide silently).** The
      critic raises doubts *and proposes better directions*. **Blocking** defects → route to the worker.
      But a **non-blocking improvement/alternative** (a better design, a scope question, "consider X")
@@ -129,8 +144,8 @@ The request: $ARGUMENTS
      assert) and capture a **screenshot** for the reviewer/critic to judge UX quality (production-grade,
      not AI-generic). Put the repeatable E2E in `verify.json` `e2e` so the objective gate re-runs it.
      Frontend workers build UI with the **`frontend-design`** skill (and `figma`/`stitch` if available).
-   - **Report at the task boundary (HITL):** when the task passes, tell the user what was done and how
-     it was verified, then proceed to the next task.
+   - **Report at the task/batch boundary (HITL):** when the task (or the parallel batch) passes its gate,
+     tell the user what was done and how it was verified, then proceed to the next task/batch.
 
 5. **Wrap up.** After all tasks pass (codebase work complete), give a final synthesis — and, **before
    you tell the user it's done, produce the completion report** following the **`report` skill's structure**
@@ -140,27 +155,25 @@ The request: $ARGUMENTS
    changed-files/verification-results/next-steps, and **append one row to `docs/agent-orchestra/INDEX.md`**
    (newest first: date · feature · what/why · link). (Trivial one-line changes: no file.) The project
    PRD/architecture, if updated, lives at `docs/PRD.md` (tool-neutral).
-   **If this completed the last phase of the plan, finalize the handshake** — set
-   `.agent-orchestra/plan.json` `status` to `"done"` so a finished plan isn't auto-surfaced to the next
-   unrelated run (the `shutdown` skill does this too; do it here if you clean up inline).
+   **If this completed the last phase of the plan, finalize the handshake** — set `status` to `"done"` in
+   **both** the feature's `docs/.../<slug>/plan.json` and the active `.agent-orchestra/plan.json`, so a
+   finished plan isn't auto-surfaced to the next unrelated run (the `shutdown` skill does this too; do it
+   here if you clean up inline).
    **Then shut down with `/agent-orchestra:shutdown`** (or do it inline): send each teammate a shutdown
    request → wait until stopped → clean up the team → **close leftover cmux panes via `cmux close-surface`**
    (cmux exposes pane control via CLI/socket; close every teammate surface except your own `$CMUX_SURFACE_ID`).
    See `skills/shutdown/SKILL.md`.
 
 ## External facts & latest info (approval-gated, date-anchored)
-Don't rely only on training-cutoff knowledge for things that change — library/framework APIs,
-versions, breaking changes, current best practice. When a task genuinely needs current external
-facts (a worker hits this and flags it via mailbox, or you do):
-- **Anchor to the real current date** (check it — e.g. `date` — don't assume your training cutoff).
-- **Ask the user before reaching out** (`AskUserQuestion`: what to look up + why). On approval,
-  use `WebSearch`/`WebFetch` (or the `context7` MCP for library docs) scoped to *today's* date.
-- **Cite source + date** in the result so the decision is traceable; prefer official docs.
-Skip all this for stable knowledge — this is only for facts that move.
+For facts that *move* (library/framework APIs, versions, breaking changes, current best practice):
+anchor to the **real current date** (check `date`, don't assume your training cutoff), **ask the user
+before any web access** (`AskUserQuestion`: what + why), then use `WebSearch`/`WebFetch`/`context7` and
+**cite source + date** (prefer official docs). Skip for stable knowledge. Full procedure: `reference.md`
+§ External facts.
 
 ## HITL cadence
-Clarify up front (1), approve the task plan once (2), report at each task boundary (4). Not every tool
-call — but never run a large job end-to-end without these checkpoints.
+Clarify up front (1), approve the task plan once (2), report at each task/batch boundary (4). Not every
+tool call — but never run a large job end-to-end without these checkpoints.
 
 ## Teammate visibility — you only see messages + task status, not their work
 **You (the lead) cannot see a teammate's file edits or pane output — only its `SendMessage` (mailbox)

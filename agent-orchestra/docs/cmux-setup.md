@@ -41,8 +41,10 @@ cgo                        # launches Claude Code with teams + cmux panes + bypa
 Notes:
 - The shim is **per-launch** (the launcher sets it up each session) — no permanent PATH
   install needed. Always entering via `cgo` is enough.
-- `teammateMode: "tmux"` in `.claude/settings.json` is **not required** under the launcher
-  (auto + injected TMUX env already yields cmux panes); harmless to leave for non-cmux runs.
+- `teammateMode` in `.claude/settings.json` accepts `"auto"` (default — split panes in tmux/iTerm2,
+  in-process otherwise), `"tmux"` (force split-pane), or `"in-process"`. The launcher already injects a
+  TMUX-like env so `"auto"` yields cmux panes; `init` writes `"tmux"` as belt-and-suspenders. **Not
+  required** under `cgo`; harmless to leave for non-cmux runs.
 - All `claude` flags work through it, e.g. `cmux claude-teams --resume`.
 
 ## Verification checklist (run interactively once)

@@ -63,7 +63,7 @@
     {
       "name": "agent-orchestra",
       "source": "./agent-orchestra",
-      "description": "Observable multi-agent orchestration. An orchestrator leads a native Agent Team — dynamic workers plus a standing reviewer and an adversarial critic — watched live in cmux panes. Standard .claude scaffolding, Redmine briefing, Remote Control.",
+      "description": "Observable multi-agent orchestration for Claude Code. An orchestrator leads a native Agent Team — project-tailored workers (designed by an agent-architect from quality-floor archetypes) plus a standing reviewer and an adversarial critic — that you watch collaborate live in cmux panes. The gate is objective (a hook re-runs the project's tests/lint/build), frontend work requires Playwright live E2E, and every run appends to an onboarding history index. Includes standard .claude scaffolding, Redmine briefing, and Remote Control flow.",
       "author": {
         "name": "jwbae"
       },

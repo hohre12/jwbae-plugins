@@ -12,9 +12,12 @@ cmux), distinct from harness-pipeline tools. It also scaffolds the standard `.cl
 layout so nothing gets forgotten, briefs you on assigned Redmine issues, and works over
 Remote Control.
 
-> **Status: v0.5.0 (v1.4: invoked b+c — not always-on; separated PRD path; cleanup & memory guards).**
-> See [`DESIGN.md`](./DESIGN.md) for the full design (§13 the 5 goals, §14 v1.3, §15 v1.4), and
-> [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) for the interactive test plan.
+> **Status:** invoked (b+c) — not always-on. Objective gate, `agent-architect` roster design, the
+> `plan`↔`run` handshake, run-completion report, and team shutdown are all in. The current version lives
+> in [`.claude-plugin/plugin.json`](./.claude-plugin/plugin.json) (single source of truth — not repeated
+> here, to avoid drift). See [`DESIGN.md`](./DESIGN.md) for the full design (§13 the 5 goals, §14–15 the
+> invoked model, §16 objective gate / FE live E2E / agent-architect, §17 `/plan`, §18 report + shutdown,
+> §19 cold-audit fixes) and [`docs/e2e-checklist.md`](./docs/e2e-checklist.md) for the interactive test plan.
 >
 > Set up a project with `/agent-orchestra:init` (which proposes its plan and waits for your
 > approval). Then run substantive work with **`/agent-orchestra:run <request>`** (or let Claude
@@ -90,7 +93,8 @@ cd ~/your-project
 cgo
 /agent-orchestra:init                 # once per project (re-runnable); proposes plan, waits for approval
 # relaunch so the teams env applies, then:
-/agent-orchestra:run <your request>   # substantive work → reviewed/critiqued team in panes
+/agent-orchestra:plan <feature>       # substantial/brownfield: analyze + agree a plan first (read-only)
+/agent-orchestra:run <your request>   # substantive work → reviewed/critiqued team in panes (auto-picks the plan)
 # quick questions / one-line edits: just ask — Orchestra is not always-on
 /agent-orchestra:briefing             # (optional) start from assigned Redmine issues
 ```

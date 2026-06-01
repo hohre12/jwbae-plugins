@@ -50,8 +50,11 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 6. **Apply the approved plan.** Create each approved slot from the matching
    `${CLAUDE_PLUGIN_ROOT}/templates/` file with placeholders filled from triage. **Delegate the
    worker roster + `.claude/agents/*.md` to the `agent-architect` agent** (it composes from the
-   archetypes and preserves their non-negotiable blocks — `reference.md` § Roster design). Never
-   silently skip a slot. If the user asked to adjust, revise the plan and re-confirm before applying.
+   archetypes and preserves their non-negotiable blocks — `reference.md` § Roster design). **You own the
+   single approval gate (step 5): agent-architect proposes the roster by *returning a table to you*, not
+   via its own `AskUserQuestion` (a spawned subagent cannot prompt the user) — fold its proposal into the
+   step-5 approval, then have it write the approved files.** Never silently skip a slot. If the user asked
+   to adjust, revise the plan and re-confirm before applying.
    **Then run the post-apply verification** (`reference.md` § Post-apply verification): existence-check
    every required slot on disk and create any that the apply pass missed — do not trust, verify.
 

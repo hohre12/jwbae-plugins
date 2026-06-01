@@ -30,8 +30,9 @@ dirs). You inject and they persist via `Bash`:
    and paste the content into the reviewer's spawn prompt under a "Your accumulated memory" heading.
 2. Same for the critic with `.claude/agent-memory/critic/MEMORY.md`.
 3. Tell each: when done, **append** durable, distilled lessons via `Bash` to its own `MEMORY.md`/topic
-   files at the bare path (they have no Write tool). Keep `MEMORY.md` a concise index. **Write in the
-   user's language.**
+   files at the bare path (they have no Write tool). Keep `MEMORY.md` a concise index. **Write memory in
+   the concrete output language you name in their spawn prompt (the literal `OUTPUT_LANGUAGE`, e.g.
+   `한국어`) — never the abstract phrase "user's language", which regresses to English.**
 
 If a memory file doesn't exist yet, note that and let the agent create it on first write.
 
@@ -40,24 +41,37 @@ If a memory file doesn't exist yet, note that and let the agent create it on fir
 Maintain a sentinel at `.agent-orchestra/state/gate.json` (gitignored). Schema:
 
 ```json
-{ "request": "<short>", "status": "in-progress | review-pending | approved", "updated": "<iso8601>" }
+{
+  "request": "<short>",
+  "status": "in-progress | review-pending | approved",
+  "updated": "<iso8601>",
+  "reviewer": "APPROVE",
+  "critic": "NO BLOCKING CONCERNS"
+}
 ```
 
-- On forming the team for a work request: write `status: "in-progress"`.
+- On forming the team for a work request: write `status: "in-progress"` (omit the verdict fields).
 - When workers finish and review begins: set `status: "review-pending"`.
-- Only after reviewer returns `APPROVE` **and** critic returns `NO BLOCKING CONCERNS`
-  **and the objective checks are green**: set `status: "approved"`.
-- After reporting and team cleanup: set `approved` (or remove the file).
+- Only after reviewer returns `APPROVE` **and** critic returns `NO BLOCKING CONCERNS` **and the objective
+  checks are green**: set `status: "approved"` **and record the two verdicts** (the `reviewer` / `critic`
+  fields). The `review-gate` hook **blocks an `approved` state whose verdict fields are missing** — you
+  cannot mark work approved without recording that the reviewer/critic actually signed off. (The hook can
+  enforce *that you recorded* the sign-off, not the reviewer's judgment itself — that is why the reviewer
+  and critic run as independent teammates held by `TeammateIdle`/`TaskCompleted`.)
+- After reporting and team cleanup: remove the file (the `shutdown` skill does this).
 
 The sentinel drives the hooks (you don't call them; they run automatically):
 - **`TaskCompleted`** — while `review-pending`, a non-review teammate cannot mark a task
   complete (the reviewer/critic completing their own review tasks is allowed).
 - **`TeammateIdle`** — while `review-pending`, the reviewer/critic cannot go idle until they sign off.
-- **`Stop` → `verify-gate`** (objective) — while `review-pending`/`approved`, **re-runs**
-  `.agent-orchestra/verify.json` (`test`/`lint`/`build`/`e2e`) and blocks if any fail. This is the
-  fact-anchor: a sentinel can't be self-`approved` past failing checks, because the hook re-runs them.
+- **`Stop` → `verify-gate`** (objective) — while `review-pending`/`approved`, **re-runs** the project's
+  `.agent-orchestra/verify.json` checks (`test`/`lint`/`build`/`e2e`) and blocks if any fail — the
+  fact-anchor a sentinel can't be self-`approved` past. It memoizes on the **working-tree signature**, so
+  it re-runs when the code actually changed and skips when it didn't (no full-suite re-run on every idle
+  pause while you wait for reviewers). Per-check timeouts are configurable via `verify.json` `"timeouts"`.
 - **`Stop` → `review-gate`** (backstop) — while `review-pending`, blocks the lead's turn so you can't
-  report done. Doesn't block `in-progress` (pause for the user freely) or once `approved` (+ green).
+  report done; **at `approved`, blocks if the `reviewer`/`critic` verdict fields are missing** (can't
+  approve un-reviewed work). Doesn't block `in-progress` (pause for the user freely).
 
 Together these make "close work / report done without review" structurally hard, without trapping
 normal pauses. Keep the sentinel accurate — it is what the hooks read.
@@ -84,12 +98,15 @@ Enforce test-first using **native Agent Team task dependencies**:
 The implementer never authors the tests — independent test authorship is the same bias-correction
 principle as independent review, applied to tests.
 
-## Per-task rhythm (HITL)
+## Per-batch rhythm (HITL)
 
-Work the shared task list **one task at a time**. After each task passes the gate, **report to the
-user** (what changed, how verified) and proceed. Clarify the requirement up front and approve the
-task plan once; don't run a large job end-to-end without these checkpoints, and don't ask on every
-tool call either.
+Decompose for **parallelism** (SKILL steps 2 & 4): independent tasks run **concurrently** on different
+teammates — don't serialize "one task at a time." **Gate at a batch/phase boundary, not per individual
+parallel task**, because the gate sentinel is one team-wide state (§ Gate contract): let a batch of
+independent tasks all reach completion, flip it to `review-pending`, review it as a unit, then **report
+to the user** (what changed, how verified) and proceed to the next batch/phase. Clarify the requirement
+up front and approve the task plan once; don't run a large job end-to-end without these checkpoints, and
+don't ask on every tool call either.
 
 ## Cleanup (and its limits)
 
@@ -102,8 +119,22 @@ the cmux CLI** (`cmux close-surface --surface <id>`, preserving your own `$CMUX_
 
 ## When the gate fails
 
+- **Set the gate sentinel back to `in-progress`** while the worker fixes — `team-gate` blocks non-review
+  task completions only while `review-pending`, so a worker can't close its fix task until you flip back.
 - Route each finding to the **responsible worker** by name via the mailbox; have them fix and
   **re-verify** (run tests/lint), not just claim a fix.
-- Re-run reviewer/critic on the fix. Loop until both sign off. Then set `approved`.
+- Flip back to `review-pending` and re-run reviewer/critic on the fix. Loop until both sign off, then
+  **record their verdicts** and set `approved` (§ Gate contract).
 - Record recurring problems: the reviewer/critic should capture them in their `MEMORY.md` so
   the next run anticipates them.
+
+## External facts & latest info (full procedure)
+
+Don't rely only on training-cutoff knowledge for things that change — library/framework APIs,
+versions, breaking changes, current best practice. When a task genuinely needs current external
+facts (a worker hits this and flags it via mailbox, or you do):
+- **Anchor to the real current date** (check it — e.g. `date` — don't assume your training cutoff).
+- **Ask the user before reaching out** (`AskUserQuestion`: what to look up + why). On approval,
+  use `WebSearch`/`WebFetch` (or the `context7` MCP for library docs) scoped to *today's* date.
+- **Cite source + date** in the result so the decision is traceable; prefer official docs.
+Skip all this for stable knowledge — this is only for facts that move.

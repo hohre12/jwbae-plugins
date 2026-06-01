@@ -108,12 +108,16 @@ agent-orchestra/                    # jwbae-plugins 안의 플러그인 디렉�
 │   └── plugin.json                 # 매니페스트 (§2.4)  ← .claude-plugin엔 이것만
 ├── skills/                         # 네임스페이스: /agent-orchestra:<name>
 │   ├── init/SKILL.md               # /agent-orchestra:init     ← triage + 스캐폴딩
+│   ├── plan/SKILL.md               # /agent-orchestra:plan     ← 분석·합의(plan.md, read-only)
 │   ├── run/SKILL.md                # /agent-orchestra:run      ← 오케스트레이터 두뇌
+│   ├── report/SKILL.md             # /agent-orchestra:report   ← 완료 리포트(수동 전용)
+│   ├── shutdown/SKILL.md           # /agent-orchestra:shutdown ← 팀 종료·정리
 │   └── briefing/SKILL.md           # /agent-orchestra:briefing ← Redmine 브리핑
-├── agents/                         # 자동 발견되는 실제 플러그인 에이전트
-│   ├── orchestrator.md             #   메인 스레드 페르소나 (init이 프로젝트 default agent로 지정)
-│   ├── reviewer.md                 #   memory: project (color: blue)
-│   └── critic.md                   #   memory: project (color: red)
+├── agents/                         # 자동 발견되는 실제 플러그인 에이전트 (3종, 프로젝트별 복사 안 함)
+│   ├── reviewer.md                 #   bare-path 수동 메모리, memory: frontmatter 없음 (color: blue)
+│   ├── critic.md                   #   bare-path 수동 메모리, memory: frontmatter 없음 (color: red)
+│   └── agent-architect.md          #   로스터 설계자 (model: opus, color: purple)
+│   # 오케스트레이터는 별도 에이전트 파일이 아니라 run 스킬 자체 (§5.4, v1.4)
 ├── hooks/
 │   └── hooks.json                  # 리뷰 게이트·팀 강제 등 결정성 레이어
 ├── scripts/                        # 훅이 호출하는 스크립트 (${CLAUDE_PLUGIN_ROOT}/scripts/...)
@@ -211,7 +215,7 @@ your-project/
 | 항목 | 소재 | init이 프로젝트 튜닝? | 비고 |
 |---|---|---|---|
 | `skills/` (엔진 진입점) | **플러그인 (고정)** | ❌ | 1회 배포·전 프로젝트 재사용 |
-| `templates/archetypes`, `agents/{reviewer,critic}`, `hooks/`, `scripts/`, `templates/` | **플러그인 (고정)** | ❌ | 범용 로직 |
+| `templates/archetypes`, `agents/{reviewer,critic,agent-architect}`, `hooks/`, `scripts/`, `templates/` | **플러그인 (고정)** | ❌ | 범용 로직 |
 | `rules/` | 레포 | ✅ | 프로젝트 컨벤션 |
 | `agents/` (인스턴스) | 레포 | ✅ | archetype → 스택 맞춰 빈칸 채움 |
 | `agent-memory/` | 레포 | ✅ 자동 | init은 빈 그릇만, 이후 에이전트가 누적 |
@@ -266,11 +270,12 @@ your-project/
 |---|---|---|
 | **리뷰 게이트** | 하드 | `TaskCompleted`/`TeammateIdle`/`Stop` 훅 exit 2 — 리뷰/비평 task 미완이면 종료 불가 |
 | **cmux/tmux 혼동 제거** | 하드 | `cmux claude-teams`의 tmux shim이 명령을 cmux API로 번역 → 모델이 구분 불필요 |
-| **매번 팀 사용** | 준-하드 | ⓐ `/orchestrate` 스킬이 1단계로 팀 생성 스크립트 + ⓑ `Stop` 훅이 `~/.claude/teams/`에 활성 팀 없으면 exit 2 차단 |
+| **매번 팀 사용** | 준-하드 | `/agent-orchestra:run`이 전제조건에서 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` env를 **하드 체크**(미설정 시 중단 + `cgo` 재실행 안내, in-process 격하 금지) + 리뷰 게이트 훅이 산출물 검증. *(설계 초안의 `~/.claude/teams/` 활성팀 Stop 훅은 적절한 pre-team 이벤트가 없어 **미구현** — env 하드체크로 대체)* |
 | **위험 명령 차단** | 하드 | `PreToolUse` 훅 (예: 파괴적 명령, `.env` 읽기 등) |
 | **재조정 변경** | 승인 게이트 | 항상 제안 → 사용자 승인(B) |
 
-> 직접적인 "pre-team" 훅 이벤트는 없으므로 "매번 팀"은 스킬 스크립트 + Stop 훅 조합으로 사실상 강제.
+> 직접적인 "pre-team" 훅 이벤트는 없으므로 "매번 팀"은 `run`의 env 하드체크(전제조건) + 게이트 훅으로 사실상
+> 강제(별도 team-presence Stop 훅은 미구현 — scripts에 없음).
 
 ---
 
@@ -517,7 +522,8 @@ bolt당 10~26 사람 검증 포인트*의 체크포인트 모델이고, 플러�
 
 **#2 산출물 경로 (분리·기능폴더·무게비례):**
 - 프로젝트 PRD/아키텍처(제품 1급) → **`docs/PRD.md`**(도구 중립, 분리). greenfield 인터뷰 산출, 살아있는 문서.
-- 도구 산출물 → `docs/agent-orchestra/<기능-slug>/[prd|design].md` + `<YYYY-MM-DD>/{review,report}.md`.
+- 도구 산출물 → `docs/agent-orchestra/<기능-slug>/[prd|design].md` + `<YYYY-MM-DD>/{review,critique,report}.md`
+  (reviewer→review.md, critic→critique.md 별도 파일, run→report.md).
 - **무게 비례**: 작은 변경은 인라인 리뷰(파일 X). init은 카테고리 폴더 미리 안 만듦.
 
 **#1 팀 정리:** 종료→정지확인→cleanup 순서 명시. 빈 cmux 패널 자동 닫힘은 **rules/hook으로 불가**(적절한
@@ -575,6 +581,10 @@ run에만 의존하면 분석 깊이가 오케스트레이터 판단에 좌우�
 - **엉뚱한 plan 방지:** ① run의 announce+HITL 확인(주 방어) ② plan.json 단일 active 포인터 + status/phase
   ③ 여러 plan이면 슬러그 요구(자동추측 금지) ④ stale + 코드변경 시 재-plan 권유.
 - **per-feature**: feature별 폴더, 재실행 시 그 plan.md revise(git 이력). trivial은 plan 스킵(run 인라인).
+- **(v0.9, F23) 2-위치 핸드셰이크:** plan.json은 이제 **기능별 authoritative 레코드**
+  `docs/agent-orchestra/<slug>/plan.json` + **active 포인터** `.agent-orchestra/plan.json` 두 곳에 쓴다.
+  기능 A 진행 중 기능 B를 plan해도 A의 phase 상태가 안 덮인다(각 기능 폴더에 보존). 위 "단일 active 포인터"
+  서술은 active 포인터에만 해당하며, 권위 상태는 기능 폴더가 보유.
 
 근거: Claude Code 공식 문서상 스킬 체이닝 정식 메커니즘 없음 → 파일 + 대화 핸드오프(+훅 강제)가 권장
 (code.claude.com/docs sub-agents "Chain subagents"). 기존 gate.json/verify-gate 관용과 동일 패턴.
@@ -610,6 +620,35 @@ lead에 지시)"로 공식어휘화. 출처: code.claude.com/docs/en/agent-teams
 - **생성 에이전트 콘텐츠 미검증(Major)**: init post-apply에 비협상 블록 grep 검증 추가("enforce, not trust").
 - **Minor**: plan explorer 폴백 명시 · report OUTPUT_LANGUAGE 폴백 · shutdown이 완료 plan.json `done` 종료처리 ·
   guard-dangerous `.env` 셸읽기/MultiEdit/Notebook 커버 · run teams 환경 하드체크(subagent 격하 방지) · v2-seams critic 계약 문구 일치.
+
+## 20. v0.9 — 2-라운드 독립 감사 + 멀티에이전트 재검증 (게이트 견고화)
+
+전수 감사(스킬·에이전트·훅·템플릿·문서) 1라운드(23건) + 24-에이전트 멀티에이전트 재감사(5차원, 발견별
+독립검증, false-positive 0) 2라운드(17건 고유)에서 찾은 결함을 근본 수정. 주요 변경:
+
+- **객관 게이트 멱등화 재설계:** `verify-gate` 멱등 키를 gate.json → **워킹트리 시그니처**(git HEAD+status+
+  diff+untracked; `docs/agent-orchestra/`·`.agent-orchestra/state/` 제외)로 교체. 리뷰 대기 중 코드 미변경이면
+  전체 스위트 재실행 안 함(이전엔 매 Stop 재실행 = 최대 병목). per-check 타임아웃 `verify.json` 설정 가능 +
+  예산시계가 시그니처 포함해 훅 1800s 이내 보장.
+- **주관 게이트 아티팩트화:** gate.json에 `reviewer`/`critic` verdict 필드. `review-gate`가 `approved`인데
+  사인오프 미기록(또는 `NOT APPROVED`/`CHANGES REQUIRED` 등 부정)이면 차단 — "리뷰 안 한 코드 승인 불가".
+  한계(리드 자기보고; 훅은 *기록 여부*만 강제)는 §4·reference에 명시.
+- **plan↔run 2-위치 핸드셰이크:** 기능폴더 `docs/agent-orchestra/<slug>/plan.json`(**권위**) + `.agent-orchestra/
+  plan.json`(**활성 포인터**). 기능 전환 시 이전 기능 phase 상태 보존. plan/run/shutdown 전 경로 배선(§17 갱신).
+- **경로·신원 견고화:** 세 게이트 훅 모두 `CLAUDE_PROJECT_DIR` 우선(cwd 드리프트/멀티레포 허브 대응).
+  `team-gate`가 TaskCompleted/TeammateIdle 신원을 다중키로 방어적 추출(스키마 미문서화 #23545, fail-open 잔재 명시).
+- **언어 회귀 봉쇄:** reviewer/critic/agent-architect/architect 아키타입/plan의 "user's language" → 리드가
+  스폰 프롬프트에 지정하는 구체 `OUTPUT_LANGUAGE`(영어 폴백 금지). plan.md(run의 계약 산출물) 포함.
+- **리뷰 산출물 분리:** reviewer→`review.md`, critic→`critique.md`(동시쓰기 충돌 제거).
+- **HITL 흐름 정합:** 배치/페이즈 경계 게이트(병렬 ↔ 단일 센티넬 양립) + 수정사이클 `in-progress` 복귀;
+  `agent-architect` AskUserQuestion 제거(서브에이전트 미표면화 확정 → 메인 세션 단일 승인); run 중 신규 에이전트는
+  재시작 필요 명시; 작업시작 `in-progress` 기록을 run 본문에 명시.
+- **위험명령 가드 확장:** `rm` 변형(-R -f/--recursive)·`git reset --hard`·`git clean -f` 차단, `git rm --cached` 허용.
+- **`agent-architect`/init 마커 일치:** impl 비협상 마커를 모든 아키타입에 존재하는 "temporary measures"로 통일.
+- **문서 정합:** README/DESIGN/marketplace/docs 스테일 정정, INDEX 템플릿 표 깨짐 수정, 부모 README에 agent-orchestra 등재.
+
+검증: `claude plugin validate` ✔ · 4개 게이트 스크립트 전 전이 회귀 그린(작업시작→리뷰→수정사이클→완료→종료;
+멱등 skip/재실행; 부정사인오프 차단; guard 정탐/오탐) · `py_compile`/JSON 유효.
 
 ## 부록 A. 핵심 참고 문서
 

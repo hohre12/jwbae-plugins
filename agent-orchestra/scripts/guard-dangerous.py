@@ -16,6 +16,26 @@ def block(msg: str) -> None:
     sys.exit(2)
 
 
+def rm_recursive_force(cmd: str) -> bool:
+    """True if any segment runs `rm` with BOTH a recursive and a force flag, in any spelling/order
+    (-rf, -fr, -r -f, -R -f, --recursive --force). Plain `rm -r dir/` (no force) and `rm --force file`
+    (no recursive) are NOT flagged — only the catastrophic unattended combo. Best-effort backstop."""
+    for seg in re.split(r"[;&|\n]", cmd):
+        if not re.search(r"\brm\b", seg):
+            continue
+        # `git rm --cached` is an index-only removal (keeps files on disk) — not a destructive recursive
+        # disk delete; don't flag it. (`git rm -rf` WITHOUT --cached DOES delete from disk → still flagged.)
+        if re.search(r"\bgit\s+rm\b", seg) and "--cached" in seg:
+            continue
+        longs = set(re.findall(r"--([a-zA-Z]+)", seg))
+        short_letters = "".join(re.findall(r"(?<![\w-])-([a-zA-Z]+)\b", seg))
+        recursive = ("recursive" in longs) or ("r" in short_letters) or ("R" in short_letters)
+        force = ("force" in longs) or ("f" in short_letters)
+        if recursive and force:
+            return True
+    return False
+
+
 def main() -> None:
     try:
         data = json.load(sys.stdin)
@@ -27,9 +47,12 @@ def main() -> None:
 
     if tool == "Bash":
         cmd = ti.get("command", "") or ""
+        if rm_recursive_force(cmd):
+            block(f"recursive force delete (rm -r -f): {cmd!r}")
         dangerous = [
-            (r"\brm\s+(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r)\b", "recursive force delete (rm -rf)"),
             (r"\bgit\s+push\b[^\n]*(--force\b|--force-with-lease|\s-f\b)", "git force push"),
+            (r"\bgit\s+reset\b[^\n]*--hard\b", "git reset --hard (discards uncommitted work)"),
+            (r"\bgit\s+clean\b[^\n]*(?:\s-[a-zA-Z]*f|--force)", "git clean -f (deletes untracked files)"),
             (r"\bchmod\s+(-R\s+)?0?777\b", "chmod 777"),
             (r"(curl|wget)\s+[^|]*\|\s*(sudo\s+)?(sh|bash|zsh)\b", "pipe-to-shell from the network"),
             (r"\bmkfs\.", "filesystem format (mkfs)"),

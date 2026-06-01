@@ -36,7 +36,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{orchestrator,reviewer,critic,agent-architect}/MEMORY.md` | (create empty seed) | **Bare paths = canonical** (reviewer/critic/agent-architect carry no `memory:` frontmatter → no namespaced `agent-orchestra-*` dirs). Concise index seed; `/run` + agents fill via Bash over time. Committed & shared |
 | `.claude/agents/<domain>.md` | **`agent-architect`** (composes archetypes) | Roster design is delegated — see § Roster design below. Not plain substitution |
-| `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. **Committed** (it's project config every contributor/run needs — a fresh clone without it makes the gate fail-open). For a multi-repo hub, chain the attached repos: e.g. `"test": "npm --prefix <repoA> run test && npm --prefix <repoB> run test"` |
+| `.agent-orchestra/verify.json` | (write directly) | **Objective gate commands** from triage: `{"test":"<cmd>","lint":"<cmd>","build":"<cmd>"}`. The `verify-gate` hook **re-runs these at the gate** — work can't be reported done on failing checks (facts > LLM opinion). Add `"e2e"` (playwright) for frontend projects. Optional `"timeouts": {"test": 600, ...}` (seconds per check, default 250) for suites slower than the default. **Committed** (it's project config every contributor/run needs — a fresh clone without it makes the gate fail-open). For a multi-repo hub, chain the attached repos: e.g. `"test": "npm --prefix <repoA> run test && npm --prefix <repoB> run test"` |
 | `.mcp.json` | `templates/mcp.json.tmpl` | Redmine/Supabase as needed; secrets via `${ENV_VAR}` |
 | **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
 | `docs/agent-orchestra/INDEX.md` | `templates/INDEX.md.tmpl` | **Onboarding timeline** — `/run` appends one row per substantial run (date · feature · what/why · links). A newcomer reads this for project history |
@@ -45,7 +45,8 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 
 Output paths: **project PRD/architecture → `docs/PRD.md`** (product-level, tool-neutral, created here
 for greenfield). **Tool artifacts → `{{OUTPUT_DIR}}/<feature-slug>/`** (optional `prd.md`/`design.md` for
-big features) **and `<feature-slug>/<YYYY-MM-DD>/{review,report}.md`** per run. Small changes: inline
+big features) **and `<feature-slug>/<YYYY-MM-DD>/{review,critique,report}.md`** per run (reviewer→`review.md`,
+critic→`critique.md`, run→`report.md`). Small changes: inline
 review, no files. Knowledge folder = native-loaded domain
 context: `.claude/knowledge/index.md` is `@import`ed by `CLAUDE.md` so it's in every session; always-apply
 domain *rules* can also go in `.claude/rules/` (auto-loaded). See § Domain knowledge below.
@@ -102,9 +103,11 @@ from the archetypes and **preserves their non-negotiable blocks verbatim**, so q
 drifts while the roster gets tailored to this project).
 
 - During init, hand `agent-architect` the triage result + `CLAUDE.md` values and have it
-  propose the roster (agent · derived-from archetype · domain evidence · why) for **your/the
-  user's approval**, then write the approved `.claude/agents/<domain>.md` files. It self-verifies
-  each file still contains its non-negotiable markers before handing back.
+  propose the roster (agent · derived-from archetype · domain evidence · why). **It returns that table
+  to you — you fold it into the single step-5 approval gate; agent-architect does NOT run its own
+  `AskUserQuestion`** (a spawned subagent's prompts don't reach the user, and a second gate would
+  double-ask). After approval, it writes the approved `.claude/agents/<domain>.md` files and self-verifies
+  each still contains its non-negotiable markers before handing back.
 - The 6 archetypes (`${CLAUDE_PLUGIN_ROOT}/templates/archetypes/`: backend, frontend, test,
   explorer, architect, devops) are the **quality floor / building blocks**, not the final roster.
   A backend-only API may yield `backend` + `test`; a greenfield app `architect` + `explorer`; a
@@ -131,7 +134,7 @@ test -f .claude/agent-memory/reviewer/MEMORY.md
 test -f .claude/agent-memory/critic/MEMORY.md
 test -f .claude/agent-memory/agent-architect/MEMORY.md
 test -f .agent-orchestra/verify.json
-test -d .agent-orchestra/state            # gate/plan/verified state dir (gitignored part)
+test -d .agent-orchestra/state            # gate.json + verified.json (transient, gitignored) — NOT plan.json
 test -f docs/agent-orchestra/INDEX.md
 test -f .claude/knowledge/index.md
 test -f .claude/knowledge/README.md
@@ -145,7 +148,9 @@ grep -L "Team protocol" .claude/agents/*.md   # any file listed = a drifted agen
 ```
 Then **spot-check the type-specific blocks** only on the agents that should carry them (these are NOT in
 every archetype, so don't glob them or you'll false-flag correct files):
-- impl agents (backend/frontend/devops): the "temporary measures / swallowed errors" clause (case-insensitive),
+- impl agents (backend/frontend/devops): the **"temporary measures"** clause (case-insensitive) — that's
+  the one impl marker present verbatim in **all three** impl archetypes (backend/frontend also say "swallowed
+  errors", but devops's domain phrasing doesn't — so match on "temporary measures", not the paired phrase),
 - the `test` agent: "write the tests FIRST",
 - `frontend`: "Live browser verification".
 
