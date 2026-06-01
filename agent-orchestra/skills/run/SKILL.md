@@ -42,7 +42,7 @@ The request: $ARGUMENTS
   `cmux claude-teams --dangerously-skip-permissions` (with `teammateMode: tmux`)** — do **not** silently
   fall back to in-process subagents (that's the failure mode step 3 forbids).
 - **Approved plan handshake (for substantial / brownfield work).** Read
-  `.agent-orchestra/plan.json` (e.g. `` !`cat .agent-orchestra/plan.json 2>/dev/null` ``):
+  `.agent-orchestra/plan.json` (e.g. `` !`cat "$CLAUDE_PROJECT_DIR/.agent-orchestra/plan.json" 2>/dev/null || true` ``):
   - If an **approved** plan matches this request (or the user named a slug): **announce which plan you'll
     use — feature · `plan_path` · `updated` date — and confirm with the user before building** (this is
     the guard against consuming the wrong/stale plan). Then load `plan.md` as the **binding contract /
