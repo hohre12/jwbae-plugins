@@ -54,11 +54,20 @@ The plugin ships three standing agents (not copied per project):
 | Command | Purpose |
 | --- | --- |
 | `/agent-orchestra:init` | Triage the project and scaffold the standard `.claude/` layout (re-runnable) |
-| `/agent-orchestra:plan` | Deeply analyze a substantial/brownfield change (read-only, multi-agent) + HITL interview → an approved design agreement (`plan.md`) that `run` implements against |
+| `/agent-orchestra:plan` | Deeply analyze a substantial/brownfield change (read-only) — the analysis fan-out runs as a **Workflow** (one explorer per repo/area in parallel, schema-enforced) while the interview/approval stay HITL — + HITL interview → an approved design agreement (`plan.md`) that `run` implements against |
 | `/agent-orchestra:run` | Orchestrate a task as an observable Agent Team (auto-picks up an approved plan) |
 | `/agent-orchestra:report` | Summarize the completed work into a Korean/output-language `report.md` (auto on run completion, or on demand) |
 | `/agent-orchestra:shutdown` | Shut down the team (shutdown request + clean up the team) and close leftover cmux panes (when a run is done/stuck) |
 | `/agent-orchestra:briefing` | Brief assigned Redmine issues, then start work |
+
+## Explanation level (plain-language output)
+
+`/agent-orchestra:init` asks your preferred **explanation level** and records it as the project's
+`outputStyle`. The plugin ships two styles — `AO 쉬운 설명` (non-expert: plain Korean, swaps
+transliterated jargon like "크리틱"/"트레이드오프" for plain words) and `AO 주니어 친화` (junior dev) —
+or leave it `Default`. Both keep all coding instructions (`keep-coding-instructions: true`) and impose no
+length caps, so only *how the lead talks to you* changes — reasoning and the reviewer/critic artifacts stay
+precise. Takes effect after a session restart.
 
 ## Develop / test locally
 

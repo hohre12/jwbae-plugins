@@ -31,7 +31,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | Slot | Source template | Notes |
 | --- | --- | --- |
 | `CLAUDE.md` | `templates/CLAUDE.md.tmpl` | SSOT, <200 lines. Fill stack/commands/conventions/maturity/roster **and `{{OUTPUT_LANGUAGE}}`** — set it to the **concrete** language the user writes in (e.g. `한국어`, `日本語`, `English`), so downstream agents read a literal language, not the abstract "user's language" (which regresses to English) |
-| `.claude/settings.json` | **MERGE (don't overwrite)** | Read existing first and **preserve keys like `enabledPlugins`** (a project-scope plugin install lives here!). Add `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:"1"` + `teammateMode:"tmux"`. **No `agent` key** (invoked, not always-on) |
+| `.claude/settings.json` | **MERGE (don't overwrite)** | Read existing first and **preserve keys like `enabledPlugins`** (a project-scope plugin install lives here!). Add `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:"1"` + `teammateMode:"tmux"`, and **`outputStyle`** if the user picked an explanation level (§ Explanation level). **No `agent` key** (invoked, not always-on) |
 | `.claude/rules/*.md` | `templates/rules/*.tmpl` | Fill `paths:` globs + commands. Add/remove rules to fit the project |
 | `.claude/agents/*.md` | `templates/archetypes/*.md` | Instantiate the workers this project needs (below) |
 | `.claude/agent-memory/{orchestrator,reviewer,critic,agent-architect}/MEMORY.md` | (create empty seed) | **Bare paths = canonical** (reviewer/critic/agent-architect carry no `memory:` frontmatter → no namespaced `agent-orchestra-*` dirs). Concise index seed; `/run` + agents fill via Bash over time. Committed & shared |
@@ -41,7 +41,7 @@ Walk every slot. Create from the template, or record an explicit reasoned N/A.
 | **output dir** | (set path only) | `{{OUTPUT_DIR}}` default `docs/agent-orchestra/`. **Don't pre-create category dirs** — feature folders (`<slug>/`, `<slug>/<date>/`) are made on demand, proportional to the work. Project PRD lives separately at `docs/PRD.md` (tool-neutral) |
 | `docs/agent-orchestra/INDEX.md` | `templates/INDEX.md.tmpl` | **Onboarding timeline** — `/run` appends one row per substantial run (date · feature · what/why · links). A newcomer reads this for project history |
 | **`.claude/knowledge/`** | (create + `index.md` + README) | Domain/business rules folder. Create `index.md` (seed, imported by CLAUDE.md `@import`) + `README.md` (usage). Goal 5 |
-| `output-styles/` | — | Usually **N/A** (user-global preference). Create only if a project-specific report tone is wanted |
+| explanation level | (set `outputStyle` in settings.json) | **Ask the user** which built-in plugin style to use — see § Explanation level. Not a created file: the plugin ships the styles; init just records the project's choice |
 
 Output paths: **project PRD/architecture → `docs/PRD.md`** (product-level, tool-neutral, created here
 for greenfield). **Tool artifacts → `{{OUTPUT_DIR}}/<feature-slug>/`** (optional `prd.md`/`design.md` for
@@ -75,6 +75,26 @@ a fresh clone/teammate still has the objective gate and the plan handshake. Crea
 **Context-budget guard:** `CLAUDE.md` loads **in full** every session — keep it under ~200 lines.
 If it grows, move topic-specific instructions into `.claude/rules/` (path-scoped: loaded only when
 Claude touches matching files). Skill `reference.md` files stay under ~500 lines (progressive disclosure).
+
+## Explanation level (`outputStyle`) — how plainly we talk to the user
+
+Some users find unexplained jargon (especially English terms transliterated into Korean — "크리틱",
+"트레이드오프") hard to follow. Claude Code's official mechanism for **how Claude communicates** (tone,
+audience) is an **output style** (`code.claude.com/docs/en/output-styles` — distinct from CLAUDE.md,
+which is for *what* Claude knows). The plugin ships two:
+
+- **`AO 쉬운 설명`** — non-expert: plain everyday Korean, swap transliterated jargon for plain words
+  (크리틱 → 비판 검토자, 트레이드오프 → 득실/우려되는 점), define unavoidable terms inline.
+- **`AO 주니어 친화`** — junior dev: keep common dev terms, unpack only domain/advanced/tool-specific ones.
+
+At step 5, ask which to use (or `Default` = off). At step 6, record the choice as
+`"outputStyle": "<name>"` in `.claude/settings.json` (committed = a shared project decision, like
+`OUTPUT_LANGUAGE`). **Why these are safe:** both set `keep-coding-instructions: true`, so all built-in
+coding instructions are retained and only tone is *added* — reasoning/correctness are unchanged. They
+deliberately impose **no length/brevity caps** (Anthropic's April 2026 postmortem found verbosity caps,
+not plain-language tone, degraded coding quality). The style only affects the **lead/main session** the
+user talks to; reviewer/critic artifacts (`review.md`/`critique.md`) stay precise — that split is intended.
+**Takes effect on the next session** (output style is read once at session start) → step-8 restart note.
 
 ## Domain knowledge (goal 5) — native loading
 

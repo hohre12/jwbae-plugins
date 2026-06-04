@@ -42,13 +42,19 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 5. **Propose the plan — HITL gate (ALL stages, not just greenfield).** Before writing anything,
    present the full scaffolding plan as a table by walking `reference.md` § Standard-slot checklist:
    each slot → *create* (from which template + key placeholder values) or *reasoned N/A*; which
-   worker archetypes to instantiate; which rules; output dir; knowledge folder. Then **stop and get
-   explicit approval** with `AskUserQuestion` (options: "approve all" / "let me adjust" / "just
-   proceed"). **Write no files before approval.** The user approves one consolidated plan, not
-   nothing — so make the proposal complete and specific.
+   worker archetypes to instantiate; which rules; output dir; knowledge folder. **Also ask the user
+   their preferred explanation level** (the `outputStyle` setting — see `reference.md` § Explanation
+   level): an `AskUserQuestion` with `AO 쉬운 설명` (non-expert) / `AO 주니어 친화` (junior dev) /
+   `Default` (off — no change). Fold this into the same approval. Then **stop and get explicit
+   approval** with `AskUserQuestion` (options: "approve all" / "let me adjust" / "just proceed").
+   **Write no files before approval.** The user approves one consolidated plan, not nothing — so make
+   the proposal complete and specific.
 
 6. **Apply the approved plan.** Create each approved slot from the matching
-   `${CLAUDE_PLUGIN_ROOT}/templates/` file with placeholders filled from triage. **Delegate the
+   `${CLAUDE_PLUGIN_ROOT}/templates/` file with placeholders filled from triage. **If the user chose
+   an explanation level (step 5), write it into `.claude/settings.json` as `"outputStyle": "<name>"`**
+   (the same MERGE-don't-overwrite rule as the other settings keys; skip the key for `Default`). It
+   takes effect on the next session — fold this into the step-8 restart note. **Delegate the
    worker roster + `.claude/agents/*.md` to the `agent-architect` agent** (it composes from the
    archetypes and preserves their non-negotiable blocks — `reference.md` § Roster design). **You own the
    single approval gate (step 5): agent-architect proposes the roster by *returning a table to you*, not
@@ -63,10 +69,11 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
    change) the same way — propose → approve → apply. Never auto-apply.
 
 8. **Hand off.** Print what you created/changed and the explicit N/As. **⚠️ If you created or changed any
-   `.claude/agents/*.md` this run, tell the user to RESTART the session before `/agent-orchestra:plan` or
-   `/agent-orchestra:run`** — Claude Code loads `.claude/agents/` at session start, so agents created
-   *this* session are NOT yet spawnable ("Agent type '<name>' not found"). Restart = exit and relaunch
-   `cmux claude-teams` from the project root; the new agents load on the fresh session. (The `settings.json`
+   `.claude/agents/*.md`, or set `outputStyle`, this run, tell the user to RESTART the session before
+   `/agent-orchestra:plan` or `/agent-orchestra:run`.** Claude Code loads `.claude/agents/` and the
+   output style **at session start**, so agents created *this* session are NOT yet spawnable ("Agent
+   type '<name>' not found") and a new explanation level only applies after a restart or `/clear`.
+   Restart = exit and relaunch `cmux claude-teams` from the project root; the new agents load on the fresh session. (The `settings.json`
    env / `cmux claude-teams` provide the Agent Teams runtime; the env is a fallback for plain launches.)
 
 ## Hard rules
@@ -79,7 +86,8 @@ Detailed checklists are in [reference.md](reference.md) — read it before scaff
 - Worker agents are written by `agent-architect` (composes archetypes, preserves non-negotiable
   blocks) — never free-write an agent in a way that drops its TDD/gate/file-ownership clauses.
 - **Merge `.claude/settings.json`, never overwrite it** — read it first and preserve existing keys
-  (especially `enabledPlugins` from a project-scope plugin install). Only add `env` + `teammateMode`.
+  (especially `enabledPlugins` from a project-scope plugin install). Add `env` + `teammateMode`, and
+  `outputStyle` if the user chose an explanation level (step 6). Never drop a key the user already had.
 - Secrets (Redmine/Supabase keys) go in `.mcp.json` as `${ENV_VAR}` references, never inline.
 - Greenfield: code only after explicit plan approval.
 - This skill proposes; the user approves. Do not auto-apply reconcile changes.

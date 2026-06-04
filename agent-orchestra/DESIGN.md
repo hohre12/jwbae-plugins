@@ -650,6 +650,51 @@ lead에 지시)"로 공식어휘화. 출처: code.claude.com/docs/en/agent-teams
 검증: `claude plugin validate` ✔ · 4개 게이트 스크립트 전 전이 회귀 그린(작업시작→리뷰→수정사이클→완료→종료;
 멱등 skip/재실행; 부정사인오프 차단; guard 정탐/오탐) · `py_compile`/JSON 유효.
 
+## 21. v0.10 — `/plan` 분석 Workflow화 + 설명 수준(output style)
+
+두 가지 독립 기능. 공통 원칙: **새 Workflows(harness-pipeline)는 `/run`의 관전형 Agent Team을 대체하지
+않는다** — `/run`의 가치(cmux 패널 라이브 관전, 메일박스 상호도전, 살아있는 팀 바인딩)와 Workflow의
+특성(in-process·헤드리스·결정론적·재진입마다 새 시작)이 정반대이기 때문. Workflow는 `/run`이 막던 3대
+걸림돌(관전 가치, 팀 바인딩 충돌, 게이트 HITL relay)이 **모두 사라지는** read-only 분석 구간에만 적용.
+
+### 21.1 `/plan` 분석 fan-out → Workflow
+
+- **무엇:** `/plan` step 2의 explorer fan-out을 `skills/plan/workflows/analysis.mjs`로 위임.
+  `phase Explore`(레포/영역당 `agentType:'Explore'` explorer 병렬, `FINDINGS_SCHEMA` 강제) →
+  `phase Completeness`(미매핑 영역·미인용 seam·미검증 inferred 1라운드 점검) →
+  `phase Synthesize`(레포 간 seam 종합). 반환 `{ goal, today, areas, findings, gaps, synthesis }`.
+- **HITL 골격은 메인 세션 유지:** 슬러그·인터뷰·critic·승인·plan.md/plan.json 작성은 그대로 메인이 수행.
+  Workflow는 HITL 없음·파일 쓰기 없음. 서브에이전트는 `AskUserQuestion` 불가이므로 분석 데이터만 반환.
+- **왜 `/plan`엔 안전한가:** plan 시점엔 팀·gate sentinel이 없어 Workflow 재진입 충돌 없음. read-only 조사라
+  cmux 관전 가치 낮음(`reference.md`가 이미 "parallel read-only agents" 폴백 인정). 기존 4갈래 폴백 분기
+  (native team/parallel agents/agent-architect 생성/inline 규율)를 schema-강제 한 경로로 정리.
+- **계약 주의:** 스크립트 내 `Date.now()`/`new Date()` 금지 → `today`를 메인이 실제 `date`로 args 주입.
+  findings는 영어 raw data로 받고 plan.md는 메인이 `OUTPUT_LANGUAGE`로 작성. explorer 수는 영역 수에 스케일.
+- **폴백:** Workflow 런타임 없으면(구버전 CC) 기존 explorer-per-repo 방식 graceful degrade.
+- **미적용(후속):** standards research 병렬화, critic 다관점 패널화는 1차 범위에서 제외(explorer fan-out만으로
+  핵심 이득 확보). `/run`의 빌드 게이트 루프는 **불변** — Agent Teams 그대로.
+
+### 21.2 설명 수준 — output style (전문용어 가독성)
+
+- **문제:** init/plan/run 중 사용자 보고가 영어 음차 전문용어("크리틱","트레이드오프")로 가득해 비전문가가
+  못 알아봄. 기존엔 매 세션 "쉽게 설명해주세요" 반복 = 임시방편.
+- **공식 기능 채택:** Claude Code의 *말투/대상* 제어 공식 수단은 **output style**(시스템 프롬프트 수정,
+  `code.claude.com/docs/en/output-styles`). 문서가 *말투=output style, 프로젝트 사실=CLAUDE.md*로 명시 분리
+  → 초기에 검토한 "CLAUDE.md에 AUDIENCE 노브" 안은 **철회**(틀린 레이어).
+- **설계:** 플러그인이 스타일 2종 ship(`output-styles/ao-plain.md` 비전문가 · `output-styles/ao-junior.md`
+  주니어), `plugin.json` `outputStyles` 등록. **선택은 프로젝트별** — `/init`이 `AskUserQuestion`으로 묻고
+  `.claude/settings.json` `outputStyle`에 기록(커밋=팀 공유, `OUTPUT_LANGUAGE`와 같은 프로젝트 결정 패턴).
+- **치환 규칙:** 영어 음차어 → 쉬운 우리말(크리틱→비판 검토자, 트레이드오프→득실/우려되는 점), 원어 필요 시
+  쉬운 풀이 괄호 병기. **코드 식별자·굳은 용어(API/깃/커밋)는 그대로**(과한 직역이 더 헷갈림). 사용자 대면
+  채널(대화·`report.md`)에만 적용 — reviewer/critic의 `review.md`·`critique.md`·코드는 정밀 용어 유지.
+- **추론 저하 없음(검증):** 두 스타일 모두 `keep-coding-instructions: true` → 내장 코딩 지침 전부 보존, 말투만
+  *추가*. **길이/단어 수 제약을 절대 넣지 않음** — Anthropic 2026-04 포스트모템에서 품질 3% 하락을 일으킨 건
+  verbosity 캡(≤25/100단어)이었지 "쉬운 설명" 톤이 아니었음. 트레이드오프는 입력 토큰 소폭↑(캐시 상쇄)·출력
+  길이↑ 수준. output style은 **세션 시작 시 1회 로드** → init 핸드오프에 재시작 안내 통합. 메인 세션에만 적용.
+
+검증: `claude plugin validate` ✔ · output style frontmatter 유효(`keep-coding-instructions`) · Workflow
+스크립트 `meta` 순수 리터럴·`Date` 미사용·schema 검증. 멀티에이전트 실제 실행은 런타임 보유 세션에서 사용자 확인.
+
 ## 부록 A. 핵심 참고 문서
 
 - Agent Teams: https://code.claude.com/docs/en/agent-teams

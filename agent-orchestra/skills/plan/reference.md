@@ -5,17 +5,38 @@ Detailed procedures for `/agent-orchestra:plan`. Read before planning.
 ## Analysis team (step 2) — read-only, thorough
 
 - This is brownfield: **assume nothing, verify in code.** The depth here is the whole point of a
-  separate `plan` skill — `run` should never have to guess on existing code.
-- **One `explorer` per repo / major area**, run in **parallel** (native Agent Team if available, else
-  parallel read-only agents). Each maps, against the goal: components, data models, API/contracts,
-  identifiers, auth/tenancy, existing patterns, and the **exact seams** where new code attaches.
-- Cross-repo / multi-project: each explorer owns one repo; the lead synthesizes the seams *between* them.
-- **If no `explorer` agent exists on disk** (init's roster is project-tailored and may omit it for an
-  in-development project): have `agent-architect` instantiate one from the `explorer` archetype, **or**
-  spawn read-only general agents and give them the explorer discipline inline (read-only, cite `file:line`,
-  verified-vs-inferred). Don't skip the deep analysis for lack of a pre-made explorer.
-- Explorers cite `file:line`; distinguish **verified** from **inferred**. No edits, no `Write` to code.
-- Pull in `.claude/knowledge/` domain context; reconcile the goal against what the code actually does.
+  separate `plan` skill — `run` should never have to guess on existing code. **One explorer per repo /
+  major area, in parallel**; each maps (against the goal) components, data models, API/contracts,
+  identifiers, auth/tenancy, existing patterns, and the **exact seams** where new code attaches. Cite
+  `file:line`; distinguish **verified** from **inferred**; no edits, no `Write` to code. Pull in
+  `.claude/knowledge/` domain context; reconcile the goal against what the code actually does.
+
+### Preferred mechanism — the analysis Workflow
+
+The read-only fan-out is delegated to a Workflow (deterministic parallelism + schema-enforced output),
+keeping this skill's **HITL parts (slug, interview, critic, approval, plan.md/plan.json writes) in the
+main session** — the Workflow does no HITL and writes no files.
+
+- **Script:** `${CLAUDE_PLUGIN_ROOT}/skills/plan/workflows/analysis.mjs`. Call `Workflow` with
+  `scriptPath` + `args`. A skill instructing `Workflow` is a sanctioned trigger — no user opt-in needed.
+- **`args` contract:** `{ goal, repos: string[], outputLanguage, today, knowledgePaths: string[] }`.
+  - `repos`: scout the work-list inline first (cwd + any `--add-dir` attached repos / major areas). Defaults to `['.']`.
+  - `today`: pass the **real date** (`date`) — the script can't call `Date.now()`/`new Date()`.
+  - `outputLanguage`: the literal `OUTPUT_LANGUAGE` (findings come back as raw English data; *you* write plan.md in it).
+- **What it does / returns:** `phase Explore` (one `agentType:'Explore'` explorer per area, in parallel,
+  `FINDINGS_SCHEMA`) → `phase Completeness` (one pass flagging unmapped areas / uncited seams / unverified
+  "inferred" claims) → `phase Synthesize` (one cross-repo seam map). Returns
+  `{ goal, today, areas, findings, gaps, synthesis }`. **You still own the final seam synthesis** and the
+  decision of what to interview on — treat `synthesis` as a strong draft, not the last word.
+- **Scale** the explorer count to the number of real repos/areas; don't fan out blindly.
+
+### Fallback — no Workflow runtime (older Claude Code)
+
+Spawn an **`explorer` per repo/area** the old way: native Agent Team if available, else parallel read-only
+general agents given the explorer discipline inline (read-only, cite `file:line`, verified-vs-inferred).
+**If no `explorer` agent exists on disk** (init's roster may omit it): have `agent-architect` instantiate
+one from the `explorer` archetype, or use general read-only agents with the discipline inline. Don't skip
+the deep analysis for lack of the runtime or a pre-made explorer. The lead synthesizes the seams *between* repos.
 
 ## Interview (step 3) — reach explicit agreement
 

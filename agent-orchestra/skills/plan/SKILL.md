@@ -28,11 +28,21 @@ The request: $ARGUMENTS
    exists, this is a **revision** — load it and update in place (don't start over).
 
 2. **Deep analysis — multi-agent, read-only (the heart of plan).** Brownfield ⇒ assume nothing; analyze
-   the *real* code. Spawn an **`explorer` per repo/area** (native Agent Team, or parallel read-only
-   agents) to map — against the goal — the real components, data models, APIs/contracts, identifiers,
-   auth/tenancy, existing patterns, and the **exact seams** where new code attaches. Cross-repo →
-   **one explorer per repo, in parallel**. Verify in code (cite `file:line`); never assume. Honor existing
-   domain knowledge (`.claude/knowledge/`).
+   the *real* code. Map — against the goal — the real components, data models, APIs/contracts, identifiers,
+   auth/tenancy, existing patterns, and the **exact seams** where new code attaches. Verify in code (cite
+   `file:line`); never assume. Honor existing domain knowledge (`.claude/knowledge/`).
+   - **Preferred — run the analysis Workflow** (this skill instructing it is a sanctioned trigger; you do
+     **not** need the user to opt in). First scout the work-list inline (which repos/areas, the cwd plus any
+     attached dirs), then call `Workflow` with
+     `scriptPath: "${CLAUDE_PLUGIN_ROOT}/skills/plan/workflows/analysis.mjs"` and
+     `args: { goal, repos: [<area/repo paths>], outputLanguage: "<literal OUTPUT_LANGUAGE>", today: "<from \`date\`>", knowledgePaths: [<.claude/knowledge files>] }`.
+     It fans out **one read-only explorer per repo/area in parallel** (schema-enforced: `file:line`,
+     verified-vs-inferred), runs a completeness pass, and returns a synthesized cross-repo seam map. Pass
+     `today` from the real date (the script can't call `Date`). Read the returned `findings`/`gaps`/`synthesis`
+     and **own the final seam synthesis yourself** before interviewing.
+   - **Fallback (no Workflow runtime / older Claude Code):** spawn an **`explorer` per repo/area** the old way
+     — native Agent Team if available, else parallel read-only general agents given the explorer discipline
+     inline (read-only, cite `file:line`, verified-vs-inferred). Don't skip the deep analysis for lack of the runtime.
 
 3. **Surface decisions & interview (HITL).** From the analysis, extract the **genuine decisions**
    (architecture, data/DB, identity/tenancy, formats, scope) and the **open questions / risks / conflicts**
