@@ -36,6 +36,10 @@ The request: $ARGUMENTS
      attached dirs), then call `Workflow` with
      `scriptPath: "${CLAUDE_PLUGIN_ROOT}/skills/plan/workflows/analysis.mjs"` and
      `args: { goal, repos: [<area/repo paths>], outputLanguage: "<literal OUTPUT_LANGUAGE>", today: "<from \`date\`>", knowledgePaths: [<.claude/knowledge files>] }`.
+     **Pass `args` as an actual JSON object in the Workflow tool call — NOT a JSON-encoded string.** A
+     stringified value reaches the script as one string, so `args.repos`/`args.goal` come back undefined
+     and the per-area fan-out silently collapses to a single explorer over `.` (the script now defends
+     against this by parsing a stringified arg, but pass structured JSON so the scaling is correct).
      It fans out **one read-only explorer per repo/area in parallel** (schema-enforced: `file:line`,
      verified-vs-inferred), runs a completeness pass, and returns a synthesized cross-repo seam map. Pass
      `today` from the real date (the script can't call `Date`). Read the returned `findings`/`gaps`/`synthesis`

@@ -10,7 +10,14 @@ export const meta = {
 
 // ── inputs (passed via the Workflow `args` value) ───────────────────────────
 // args = { goal, repos: string[], outputLanguage, today, knowledgePaths: string[] }
-const A = args || {}
+// args SHOULD arrive as a structured JSON object. If the caller passed it as a
+// JSON-encoded string (a common Workflow-tool mistake), recover it by parsing —
+// otherwise A.goal/A.repos would be undefined and the per-area fan-out silently
+// falls back to a single explorer over '.'.
+let A = args || {}
+if (typeof A === 'string') {
+  try { const parsed = JSON.parse(A); if (parsed && typeof parsed === 'object') A = parsed } catch (e) { A = {} }
+}
 const GOAL = A.goal || 'understand the codebase against the planning goal'
 const OUTPUT_LANGUAGE = A.outputLanguage || "the user's language"
 const TODAY = A.today || 'unknown'
