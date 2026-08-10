@@ -61,6 +61,22 @@
       "category": "content"
     },
     {
+      "name": "team",
+      "source": {
+        "source": "github",
+        "repo": "hohre12/claude-team-relay"
+      },
+      "description": "Real-time agent-to-agent messaging between teammates' Claude Code sessions — self-hosted relay, room-scoped isolation, offline queue with TTL, native cross-session delegation on each machine. Join with /team:join. (Private repo — requires collaborator access to install.)",
+      "version": "0.2.0",
+      "author": {
+        "name": "jwbae"
+      },
+      "homepage": "https://github.com/hohre12/claude-team-relay",
+      "repository": "https://github.com/hohre12/claude-team-relay",
+      "keywords": ["team", "messaging", "channel", "cross-machine", "relay"],
+      "category": "collaboration"
+    },
+    {
       "name": "agent-orchestra",
       "source": "./agent-orchestra",
       "description": "Observable multi-agent orchestration for Claude Code. An orchestrator leads a native Agent Team — project-tailored workers (designed by an agent-architect from quality-floor archetypes) plus a standing reviewer and an adversarial critic — that you watch collaborate live in cmux panes. The gate is objective (a hook re-runs the project's tests/lint/build), frontend work requires Playwright live E2E, and every run appends to an onboarding history index. Includes standard .claude scaffolding, Redmine briefing, and Remote Control flow.",
