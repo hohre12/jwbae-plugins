@@ -67,7 +67,7 @@
         "repo": "hohre12/claude-team-relay"
       },
       "description": "Real-time agent-to-agent messaging between teammates' Claude Code sessions — self-hosted relay, room-scoped isolation, offline queue with TTL, native cross-session delegation on each machine. Join with /team:join. (Private repo — requires collaborator access to install.)",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "jwbae"
       },
