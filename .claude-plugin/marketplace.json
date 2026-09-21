@@ -66,8 +66,8 @@
         "source": "github",
         "repo": "hohre12/claude-team-relay"
       },
-      "description": "Real-time agent-to-agent messaging between teammates' Claude Code sessions — self-hosted relay, room-scoped isolation, offline queue with TTL, native cross-session delegation on each machine. Join with /team-relay:join.",
-      "version": "0.4.0",
+      "description": "Real-time agent-to-agent messaging between teammates' Claude Code sessions — self-hosted relay, room-scoped isolation, threaded Q&A with no-answer alerts, away mode, self-diagnosis, message history, two-sided agreement ledger, room owners. Join with /team-relay:join.",
+      "version": "0.5.0",
       "author": {
         "name": "jwbae"
       },
